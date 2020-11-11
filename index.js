@@ -6,17 +6,22 @@ const moongose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+//routes
+const techRouter = require('./routes/technology.routes');
+
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-//test endpoint
+app.use('/api/techs', techRouter);
+
+/*//test endpoint
 app.get('/', (req,res) =>{
     res.json({
         message : 'Hello!'
     })
-})
+})*/
 
 const httpServer = app.listen(PORT, () =>{
     console.log(`Listening at http://localhost:${PORT}`);
