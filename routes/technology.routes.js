@@ -30,4 +30,26 @@ techRouter.post('/', async (req,res) =>{
     }
 })
 
+techRouter.delete('/:id', async (req,res) =>{
+    try {
+        var id = req.params.id;
+        const tech = await Technology.findByIdAndDelete(id);
+        if (!tech)
+            throw new Error("404 - Element not found");
+
+        res.status(200).json({
+            status : 'success',
+            data : tech
+        })
+    } catch (error) {
+        var status = error.status | 500;
+
+        res.status(status).json({
+            status : 'error',
+            error : error.message,
+            data : null
+        })
+    }
+})
+
 module.exports = techRouter

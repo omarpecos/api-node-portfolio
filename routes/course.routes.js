@@ -1,26 +1,26 @@
-const {Router} = require('express')
-const {Project} = require('../models')
+const {Router} = require('express');
+const {Course} = require('./../models')
 
-const projectRouter = new Router();
+const courseRouter = new Router();
 
-projectRouter.get('/', async (req,res) =>{
-    const projects = await Project.find({}).sort('-_id')
+courseRouter.get('/', async (req,res) =>{
+    const courses = await Course.find({}).sort('-_id')
         .populate("techs", "name type -_id");
 
     res.status(200).json({
         status : 'success',
-        data : projects
+        data : courses
     })
 })
 
-projectRouter.post('/', async (req,res) =>{
+courseRouter.post('/', async (req,res) =>{
     try {
-        var newProject = req.body;
-        const project = await Project.create(newProject);
+        var newCourse = req.body;
+        const course = await Course.create(newCourse);
 
         res.status(200).json({
             status : 'success',
-            data : project
+            data : course
         })
     } catch (error) {
         res.status(error.code).json({
@@ -31,16 +31,16 @@ projectRouter.post('/', async (req,res) =>{
     }
 })
 
-projectRouter.delete('/:id', async (req,res) =>{
+courseRouter.delete('/:id', async (req,res) =>{
     try {
         var id = req.params.id;
-        const project = await Project.findByIdAndDelete(id);
-        if (!project)
+        const course = await Course.findByIdAndDelete(id);
+        if (!course)
             throw new Error("404 - Element not found");
 
         res.status(200).json({
             status : 'success',
-            data : project
+            data : course
         })
     } catch (error) {
         var status = error.status | 500;
@@ -53,4 +53,4 @@ projectRouter.delete('/:id', async (req,res) =>{
     }
 })
 
-module.exports = projectRouter
+module.exports = courseRouter
