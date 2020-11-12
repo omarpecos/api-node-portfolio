@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 //routes
-const {techRouter,profileRouter} = require('./routes');
+const {techRouter,profileRouter,projectRouter} = require('./routes');
 
 const app = express();
 
@@ -18,6 +18,7 @@ app.use(bodyParser.json());
 
 app.use('/api/techs', techRouter);
 app.use('/api/profile', profileRouter);
+app.use('/api/projects', projectRouter);
 
 /*//test endpoint
 app.get('/', (req,res) =>{
