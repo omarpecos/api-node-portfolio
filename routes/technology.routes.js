@@ -1,4 +1,4 @@
-const Technology = require('./../models/technology.model');
+const {Technology} = require('./../models');
 const {Router} = require('express');
 
 const techRouter = Router();

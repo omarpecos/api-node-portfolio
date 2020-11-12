@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+
 const PORT = process.env.PORT | 9000;
 
 const express = require('express');
@@ -7,7 +9,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 //routes
-const techRouter = require('./routes/technology.routes');
+const {techRouter,profileRouter} = require('./routes');
 
 const app = express();
 
@@ -15,6 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/techs', techRouter);
+app.use('/api/profile', profileRouter);
 
 /*//test endpoint
 app.get('/', (req,res) =>{
