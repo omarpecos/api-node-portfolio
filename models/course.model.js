@@ -9,7 +9,8 @@ const courseSchema = new Schema({
     techs : [
         {type : Schema.Types.ObjectId , ref : 'Technology'}
     ],
-    done : Boolean
+    done : Boolean,
+    description : String
 })
 
 const Course = new model('Course',courseSchema);

@@ -4,9 +4,11 @@ const profileSchema = new Schema({
     intro : String,
     about : {
         text : String,
-        skills : [{
-            tech : {type : Schema.Types.ObjectId ,
-            ref : "Technology"}, percentage : Number}
+        skills : [
+            {
+                tech : {type : Schema.Types.ObjectId ,ref : "Technology"},
+                percentage : Number
+            }
         ]
     },
     version : Number

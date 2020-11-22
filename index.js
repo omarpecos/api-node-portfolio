@@ -30,7 +30,7 @@ const httpServer = app.listen(PORT, () =>{
     console.log(`Listening at http://localhost:${PORT}`);
     moongose.connect(
         process.env.MONGO_URI,
-        { useNewUrlParser: true , useUnifiedTopology: true }
+        { useFindAndModify: false, useNewUrlParser: true , useUnifiedTopology: true }
     ).then(
         () => console.log('Connected successfully to mongo!'),
         error => console.log('Something failed connecting to mongo', error)

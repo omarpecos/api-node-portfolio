@@ -1,11 +1,13 @@
 const {Router} = require('express');
 const {Course} = require('./../models')
+const {mongo} = require('mongoose');
+
 
 const courseRouter = new Router();
 
 courseRouter.get('/', async (req,res) =>{
     const courses = await Course.find({}).sort('-_id')
-        .populate("techs", "name type -_id");
+        .populate("techs", "name type _id");
 
     res.status(200).json({
         status : 'success',
@@ -16,16 +18,21 @@ courseRouter.get('/', async (req,res) =>{
 courseRouter.post('/', async (req,res) =>{
     try {
         var newCourse = req.body;
-        const course = await Course.create(newCourse);
+        if (newCourse._id == null)
+            newCourse._id = mongo.ObjectId();
+
+        const course = await Course.findOneAndUpdate({ _id : newCourse._id },newCourse,{upsert: true, new: true,  setDefaultsOnInsert: true });
 
         res.status(200).json({
             status : 'success',
             data : course
         })
     } catch (error) {
-        res.status(error.code).json({
+        var status = error.status | 500;
+
+        res.status(status).json({
             status : 'error',
-            error,
+            error : error.message,
             data : null
         })
     }

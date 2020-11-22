@@ -1,11 +1,13 @@
 const {Router} = require('express')
 const {Profile} = require('../models')
+const {mongo} = require('mongoose');
+
 
 const profileRouter = new Router();
 
 profileRouter.get('/', async (req,res) =>{
      // can search for the profile with the highest version
-    const profile = await Profile.find({}).sort('-_id').limit(1)
+    const profile = await Profile.findOne({}).sort('-_id').limit(1)
         .populate("about.skills.tech", "name type -_id");
   
     res.status(200).json({
@@ -17,7 +19,10 @@ profileRouter.get('/', async (req,res) =>{
 profileRouter.post('/' , async (req,res) =>{
     try {
         var newProfile = req.body;
-        const profile = await Profile.create(newProfile);
+        if (newProfile._id == null)
+            newProfile._id = mongo.ObjectId();
+
+        const profile = await Profile.findOneAndUpdate({ _id : newProfile._id },newProfile,{upsert: true, new: true,  setDefaultsOnInsert: true });
 
         res.status(200).json({
             status : 'success',
@@ -25,9 +30,11 @@ profileRouter.post('/' , async (req,res) =>{
         })
 
     } catch (error) {
-        res.status(error.code).json({
+        var status = error.status | 500;
+
+        res.status(status).json({
             status : 'error',
-            error,
+            error : error.message,
             data : null
         })
     }

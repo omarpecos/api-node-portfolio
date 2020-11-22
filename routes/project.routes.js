@@ -1,11 +1,13 @@
 const {Router} = require('express')
 const {Project} = require('../models')
+const {mongo} = require('mongoose');
+
 
 const projectRouter = new Router();
 
 projectRouter.get('/', async (req,res) =>{
     const projects = await Project.find({}).sort('-_id')
-        .populate("techs", "name type -_id");
+        .populate("techs", "name type _id");
 
     res.status(200).json({
         status : 'success',
@@ -16,16 +18,21 @@ projectRouter.get('/', async (req,res) =>{
 projectRouter.post('/', async (req,res) =>{
     try {
         var newProject = req.body;
-        const project = await Project.create(newProject);
+        if (newProject._id == null)
+             newProject._id = mongo.ObjectId();
+
+        const project = await Project.findOneAndUpdate({ _id : newProject._id },newProject,{upsert: true, new: true,  setDefaultsOnInsert: true });
 
         res.status(200).json({
             status : 'success',
             data : project
         })
     } catch (error) {
-        res.status(error.code).json({
+        var status = error.status | 500;
+
+        res.status(status).json({
             status : 'error',
-            error,
+            error : error.message,
             data : null
         })
     }
