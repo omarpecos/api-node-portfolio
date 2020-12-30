@@ -23,16 +23,22 @@ app.use('/api/courses', courseRouter);
 
 //test endpoint
 app.get('/', (req,res) =>{
-    res.send('<h1>Hello! API is running ;)</h1>')
+    res.send('<h1>Hello! Portfolio API is running ;)</h1>');
 })
 
-const httpServer = app.listen(PORT, () =>{
-    console.log(`Listening at http://localhost:${PORT}`);
-    moongose.connect(
-        process.env.MONGO_URI,
-        { useFindAndModify: false, useNewUrlParser: true , useUnifiedTopology: true }
-    ).then(
-        () => console.log('Connected successfully to mongo!'),
-        error => console.log('Something failed connecting to mongo', error)
-    )
-});
+moongose.connect(
+    process.env.MONGO_URI,
+    { 
+      useFindAndModify: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
+).then(
+    () => {
+        app.listen(PORT, () =>{
+          console.log('Connected successfully to mongo!');
+          console.log(`Listening at http://localhost:${PORT}`);
+        });
+    },
+    error => console.log('Something failed connecting to mongo', error.message)
+);

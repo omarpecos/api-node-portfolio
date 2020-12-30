@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const {Project} = require('../models')
+const {Project} = require('../models');
 const {mongo} = require('mongoose');
 
 
@@ -7,7 +7,7 @@ const projectRouter = new Router();
 
 projectRouter.get('/', async (req,res) =>{
     const projects = await Project.find({}).sort('-_id')
-        .populate("techs", "name type _id");
+        .populate("techs", "name type icon  _id");
 
     res.status(200).json({
         status : 'success',
