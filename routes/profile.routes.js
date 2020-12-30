@@ -8,7 +8,7 @@ const profileRouter = new Router();
 profileRouter.get('/', async (req,res) =>{
      // can search for the profile with the highest version
     const profile = await Profile.findOne({}).sort('-_id').limit(1)
-        .populate("about.skills.tech", "name type icon -_id");
+        .populate("about.skills.tech", "name type -_id");
   
     res.status(200).json({
         status : 'success',
