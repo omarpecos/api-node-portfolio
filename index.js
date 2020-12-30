@@ -23,7 +23,7 @@ app.use('/api/courses', courseRouter);
 
 //test endpoint
 app.get('/', (req,res) =>{
-    res.send('<h1>Hello! API is running ;)</h1>')
+    res.send('<h1>Hello! Portfolio API is running ;)</h1>');
 })
 
 moongose.connect(

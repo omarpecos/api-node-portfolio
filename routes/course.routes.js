@@ -7,7 +7,7 @@ const courseRouter = new Router();
 
 courseRouter.get('/', async (req,res) =>{
     const courses = await Course.find({}).sort('-_id')
-        .populate("techs", "name type _id");
+        .populate("techs", "name type icon _id");
 
     res.status(200).json({
         status : 'success',
