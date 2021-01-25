@@ -1,13 +1,11 @@
 const { Router } = require('express');
-const { Course } = require('./../models');
 const { mongo } = require('mongoose');
+const { CourseService } = require('../services');
 
 const courseRouter = new Router();
 
 courseRouter.get('/', async (req, res) => {
-  const courses = await Course.find({})
-    .sort('-_id')
-    .populate('techs', 'name type icon _id');
+  const courses = await CourseService.getAllCourses();
 
   res.status(200).json({
     status: 'success',
@@ -19,11 +17,7 @@ courseRouter.post('/', async (req, res) => {
   const { body: newCourse } = req;
   if (newCourse._id == null) newCourse._id = mongo.ObjectId();
 
-  const course = await Course.findOneAndUpdate(
-    { _id: newCourse._id },
-    newCourse,
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+  const course = await CourseService.createOrUpdateCourse(newCourse);
 
   res.status(200).json({
     status: 'success',
@@ -33,7 +27,7 @@ courseRouter.post('/', async (req, res) => {
 
 courseRouter.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const course = await Course.findByIdAndDelete(id);
+  const course = await CourseService.deleteCourse(id);
   if (!course) {
     const err = new Error('Course not found');
     err.status = 404;
