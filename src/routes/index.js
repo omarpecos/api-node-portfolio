@@ -1,12 +1,6 @@
-const profileRouter = require('./profile.routes')
-const techRouter = require('./technology.routes')
-const projectRouter = require('./project.routes')
-const courseRouter = require('./course.routes')
-
-
 module.exports = {
-    profileRouter,
-    techRouter,
-    projectRouter,
-    courseRouter
-}
+  profileRouter: require('./profile.routes'),
+  techRouter: require('./technology.routes'),
+  projectRouter: require('./project.routes'),
+  courseRouter: require('./course.routes'),
+};
