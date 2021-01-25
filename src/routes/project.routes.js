@@ -1,13 +1,11 @@
 const { Router } = require('express');
-const { Project } = require('../models');
 const { mongo } = require('mongoose');
+const { ProjectService } = require('../services');
 
 const projectRouter = new Router();
 
 projectRouter.get('/', async (req, res) => {
-  const projects = await Project.find({})
-    .sort('-_id')
-    .populate('techs', 'name type icon  _id');
+  const projects = await ProjectService.getAllProjects();
 
   res.status(200).json({
     status: 'success',
@@ -19,11 +17,7 @@ projectRouter.post('/', async (req, res) => {
   const { body: newProject } = req;
   if (newProject._id == null) newProject._id = mongo.ObjectId();
 
-  const project = await Project.findOneAndUpdate(
-    { _id: newProject._id },
-    newProject,
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+  const project = await ProjectService.createOrUpdateProject(newProject);
 
   res.status(200).json({
     status: 'success',
@@ -33,7 +27,7 @@ projectRouter.post('/', async (req, res) => {
 
 projectRouter.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const project = await Project.findByIdAndDelete(id);
+  const project = await ProjectService.deleteProject(id);
   if (!project) {
     const err = new Error('Project not found');
     err.status = 404;
