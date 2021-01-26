@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
 const { MONGO_URI } = require('../config');
-const { Technology } = require('../models');
+const { Technology, Profile } = require('../models');
 const app = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
-
-let techId;
 
 describe('Endpoint E2E integration tests', () => {
   beforeAll(async () => {
@@ -17,6 +15,7 @@ describe('Endpoint E2E integration tests', () => {
     });
     mongoose.Promise = Promise;
     await Technology.deleteMany({});
+    await Profile.deleteMany({});
   });
 
   afterAll(async () => {
@@ -24,6 +23,8 @@ describe('Endpoint E2E integration tests', () => {
   });
 
   describe('Techs endpoints', () => {
+    let techId;
+
     afterEach(async () => {
       await Technology.deleteMany({});
     });
@@ -92,6 +93,99 @@ describe('Endpoint E2E integration tests', () => {
       const resDelete = await request(app).delete('/api/techs/' + techId);
 
       expect(resDelete.status).toBe(200);
+    });
+  });
+
+  describe('Profile endpoints', () => {
+    let techId;
+    let techName;
+
+    beforeAll(async () => {
+      const tech = await Technology.create({
+        name: 'GraphQL',
+        type: 'backend',
+        icon:
+          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+      });
+      techId = tech._id;
+      techName = tech.name;
+    });
+    afterEach(async () => {
+      await Profile.deleteMany({});
+    });
+
+    it('should create a profile', async () => {
+      const res = await request(app)
+        .post('/api/profile')
+        .send({
+          intro:
+            'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
+          about: {
+            text:
+              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            skills: [{ tech: techId, percentage: 60 }],
+          },
+          version: 1,
+        });
+      const profileCount = await Profile.countDocuments();
+
+      expect(res.status).toBe(200);
+      expect(profileCount).toBe(1);
+    });
+
+    it('should return most recent profile', async () => {
+      const resCreate = await request(app)
+        .post('/api/profile')
+        .send({
+          intro:
+            'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
+          about: {
+            text:
+              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            skills: [{ tech: techId, percentage: 60 }],
+          },
+          version: 1,
+        });
+      const res = await request(app).get('/api/profile');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.about.skills[0].tech).toHaveProperty(
+        'name',
+        techName
+      );
+    });
+
+    it('should update a profile', async () => {
+      const resCreate = await request(app)
+        .post('/api/profile')
+        .send({
+          intro:
+            'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
+          about: {
+            text:
+              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            skills: [{ tech: techId, percentage: 60 }],
+          },
+          version: 1,
+        });
+
+      let profileId = resCreate.body.data._id;
+
+      const resUpdate = await request(app)
+        .post('/api/profile')
+        .send({
+          _id: profileId,
+          intro:
+            'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
+          about: {
+            text: 'nuevo text',
+            skills: [{ tech: techId, percentage: 60 }],
+          },
+          version: 1,
+        });
+
+      expect(resUpdate.status).toBe(200);
+      expect(resUpdate.body.data.about.text).toBe('nuevo text');
     });
   });
 });
