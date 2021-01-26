@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
 const { MONGO_URI } = require('../config');
-const { Technology, Profile, Course } = require('../models');
+const { Technology, Profile, Course, Project } = require('../models');
 const app = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
@@ -276,7 +276,7 @@ describe('Endpoint E2E integration tests', () => {
       courseId = resCreate.body.data._id;
 
       const resUpdate = await request(app).post('/api/courses').send({
-        _id: techId,
+        _id: courseId,
         platform: 'OpenWebinars',
       });
 
@@ -307,6 +307,132 @@ describe('Endpoint E2E integration tests', () => {
       courseId = resCreate.body.data._id;
 
       const resDelete = await request(app).delete('/api/courses/' + courseId);
+
+      expect(resDelete.status).toBe(200);
+    });
+  });
+
+  describe('Projects endpoints', () => {
+    let techId;
+    let projectId;
+
+    beforeAll(async () => {
+      const tech = await Technology.create({
+        name: 'GraphQL',
+        type: 'backend',
+        icon:
+          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+      });
+      techId = tech._id;
+    });
+
+    afterEach(async () => {
+      await Project.deleteMany({});
+    });
+
+    afterAll(async () => {
+      await Technology.deleteMany({});
+    });
+
+    it('should create a project', async () => {
+      const res = await request(app)
+        .post('/api/projects')
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+
+      projectId = res.body.data._id;
+      const projectsCount = await Project.countDocuments();
+
+      expect(res.status).toBe(200);
+      expect(projectsCount).toBe(1);
+    });
+
+    it('should return a list of projects', async () => {
+      const res = await request(app)
+        .post('/api/projects')
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+      const projects = await request(app).get('/api/projects');
+
+      expect(projects.status).toBe(200);
+      expect(projects.body.data).toHaveLength(1);
+    });
+
+    it('should update a project', async () => {
+      const resCreate = await request(app)
+        .post('/api/projects')
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+
+      projectId = resCreate.body.data._id;
+
+      const resUpdate = await request(app).post('/api/projects').send({
+        _id: projectId,
+        description: 'new description',
+      });
+
+      expect(resUpdate.status).toBe(200);
+      expect(resUpdate.body.data).toHaveProperty(
+        'description',
+        'new description'
+      );
+    });
+
+    it('should throw 404 trying to delete project', async () => {
+      const resDelete = await request(app).delete('/api/projects/' + projectId);
+
+      expect(resDelete.status).toBe(404);
+    });
+
+    it('should delete a project', async () => {
+      const resCreate = await request(app)
+        .post('/api/projects')
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+
+      projectId = resCreate.body.data._id;
+
+      const resDelete = await request(app).delete('/api/projects/' + projectId);
 
       expect(resDelete.status).toBe(200);
     });
