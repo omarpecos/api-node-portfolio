@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
 const { MONGO_URI } = require('../config');
-const { Technology, Profile } = require('../models');
+const { Technology, Profile, Course } = require('../models');
 const app = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
@@ -14,12 +14,16 @@ describe('Endpoint E2E integration tests', () => {
       useFindAndModify: false,
     });
     mongoose.Promise = Promise;
-    await Technology.deleteMany({});
-    await Profile.deleteMany({});
   });
 
   afterAll(async () => {
     await mongoose.connection.close();
+  });
+
+  it('should return a 404 if the route is not defined', async () => {
+    const res = await request(app).get('/api/v1/false_route');
+
+    expect(res.status).toBe(404);
   });
 
   describe('Techs endpoints', () => {
@@ -114,6 +118,10 @@ describe('Endpoint E2E integration tests', () => {
       await Profile.deleteMany({});
     });
 
+    afterAll(async () => {
+      await Technology.deleteMany({});
+    });
+
     it('should create a profile', async () => {
       const res = await request(app)
         .post('/api/profile')
@@ -186,6 +194,121 @@ describe('Endpoint E2E integration tests', () => {
 
       expect(resUpdate.status).toBe(200);
       expect(resUpdate.body.data.about.text).toBe('nuevo text');
+    });
+  });
+
+  describe('Courses endpoints', () => {
+    let techId;
+    let courseId;
+
+    beforeAll(async () => {
+      const tech = await Technology.create({
+        name: 'GraphQL',
+        type: 'backend',
+        icon:
+          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+      });
+      techId = tech._id;
+    });
+
+    afterEach(async () => {
+      await Course.deleteMany({});
+    });
+
+    afterAll(async () => {
+      await Technology.deleteMany({});
+    });
+
+    it('should create a course', async () => {
+      const res = await request(app)
+        .post('/api/courses')
+        .send({
+          name: 'Crypto App with React Native',
+          platform: 'Udemy',
+          url:
+            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          language: 'Inglés',
+          duration: 51,
+          techs: [techId],
+          done: true,
+        });
+
+      courseId = res.body.data._id;
+      const coursesCount = await Course.countDocuments();
+
+      expect(res.status).toBe(200);
+      expect(coursesCount).toBe(1);
+    });
+
+    it('should return a list of courses', async () => {
+      const res = await request(app)
+        .post('/api/courses')
+        .send({
+          name: 'Crypto App with React Native',
+          platform: 'Udemy',
+          url:
+            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          language: 'Inglés',
+          duration: 51,
+          techs: [techId],
+          done: true,
+        });
+      const courses = await request(app).get('/api/courses');
+
+      expect(courses.status).toBe(200);
+      expect(courses.body.data).toHaveLength(1);
+    });
+
+    it('should update a course', async () => {
+      const resCreate = await request(app)
+        .post('/api/courses')
+        .send({
+          name: 'Crypto App with React Native',
+          platform: 'Udemy',
+          url:
+            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          language: 'Inglés',
+          duration: 51,
+          techs: [techId],
+          done: true,
+        });
+
+      courseId = resCreate.body.data._id;
+
+      const resUpdate = await request(app).post('/api/courses').send({
+        _id: techId,
+        platform: 'OpenWebinars',
+      });
+
+      expect(resUpdate.status).toBe(200);
+      expect(resUpdate.body.data).toHaveProperty('platform', 'OpenWebinars');
+    });
+
+    it('should throw 404 trying to delete course', async () => {
+      const resDelete = await request(app).delete('/api/courses/' + courseId);
+
+      expect(resDelete.status).toBe(404);
+    });
+
+    it('should delete a course', async () => {
+      const resCreate = await request(app)
+        .post('/api/courses')
+        .send({
+          name: 'Crypto App with React Native',
+          platform: 'Udemy',
+          url:
+            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          language: 'Inglés',
+          duration: 51,
+          techs: [techId],
+          done: true,
+        });
+
+      courseId = resCreate.body.data._id;
+
+      const resDelete = await request(app).delete('/api/courses/' + courseId);
+
+      expect(resDelete.status).toBe(200);
     });
   });
 });
