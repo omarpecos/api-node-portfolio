@@ -2,6 +2,7 @@ const express = require('express');
 const { Router } = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 const { NotFoundMiddleware, GeneralErrorMiddleware } = require('./middlewares');
 require('express-async-errors');
 
@@ -11,12 +12,15 @@ const {
   profileRouter,
   projectRouter,
   courseRouter,
+  authRouter,
+  userRouter,
 } = require('./routes');
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(helmet());
 
 //ROUTES
 
@@ -30,6 +34,8 @@ apiRouter.use('/techs', techRouter);
 apiRouter.use('/profile', profileRouter);
 apiRouter.use('/projects', projectRouter);
 apiRouter.use('/courses', courseRouter);
+apiRouter.use('/users', userRouter);
+apiRouter.use('/auth', authRouter);
 
 app.use('/api', apiRouter);
 
