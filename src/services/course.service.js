@@ -1,5 +1,7 @@
-const getAllCourses = (Course) => () => {
-  return Course.find({}).sort('-_id').populate('techs', 'name type icon _id');
+const getAllCourses = (Course) => (userId) => {
+  return Course.find({ userId })
+    .sort('-_id')
+    .populate('techs', 'name type icon _id');
 };
 
 const createOrUpdateCourse = (Course) => (newCourse) => {
@@ -11,7 +13,11 @@ const createOrUpdateCourse = (Course) => (newCourse) => {
 };
 
 const deleteCourse = (Course) => (id) => {
-  return Course.findByIdAndDelete(id);
+  return Course.deleteOne({ _id: id });
+};
+
+const getOneCourse = (Course) => (id) => {
+  return Course.findById(id);
 };
 
 module.exports = (Course) => {
@@ -19,5 +25,6 @@ module.exports = (Course) => {
     getAllCourses: getAllCourses(Course),
     createOrUpdateCourse: createOrUpdateCourse(Course),
     deleteCourse: deleteCourse(Course),
+    getOneCourse: getOneCourse(Course),
   };
 };

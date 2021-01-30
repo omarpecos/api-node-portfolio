@@ -1,11 +1,16 @@
 const { Router } = require('express');
 const { mongo } = require('mongoose');
 const { CourseService } = require('../services');
+const { AuthenticationMiddleware } = require('../middlewares');
 
 const courseRouter = new Router();
 
-courseRouter.get('/', async (req, res) => {
-  const courses = await CourseService.getAllCourses();
+courseRouter.get('/', AuthenticationMiddleware, async (req, res) => {
+  const {
+    user: { _id: userId },
+  } = req;
+
+  const courses = await CourseService.getAllCourses(userId);
 
   res.status(200).json({
     status: 'success',
@@ -13,10 +18,14 @@ courseRouter.get('/', async (req, res) => {
   });
 });
 
-courseRouter.post('/', async (req, res) => {
+courseRouter.post('/', AuthenticationMiddleware, async (req, res) => {
+  const {
+    user: { _id: userId },
+  } = req;
   const { body: newCourse } = req;
   if (newCourse._id == null) newCourse._id = mongo.ObjectId();
 
+  newCourse.userId = userId;
   const course = await CourseService.createOrUpdateCourse(newCourse);
 
   res.status(200).json({
@@ -25,14 +34,27 @@ courseRouter.post('/', async (req, res) => {
   });
 });
 
-courseRouter.delete('/:id', async (req, res) => {
+courseRouter.delete('/:id', AuthenticationMiddleware, async (req, res) => {
+  const {
+    user: { _id: userId },
+  } = req;
+
   const { id } = req.params;
-  const course = await CourseService.deleteCourse(id);
+  let course = await CourseService.getOneCourse(id);
+
   if (!course) {
     const err = new Error('Course not found');
     err.status = 404;
     throw err;
   }
+
+  if (course.userId != userId) {
+    const err = new Error('Unathorized');
+    err.status = 403;
+    throw err;
+  }
+
+  course = await CourseService.deleteCourse(id);
 
   res.status(200).json({
     status: 'success',
