@@ -23,7 +23,7 @@ authRouter.post('/register', async (req, res) => {
 
   const user = await AuthService.doSignUp(body);
 
-  res.json({
+  res.status(201).json({
     status: 'success',
     data: user,
   });

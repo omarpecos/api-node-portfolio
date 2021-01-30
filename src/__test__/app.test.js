@@ -1,12 +1,17 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
 const { MONGO_URI } = require('../config');
-const { Technology, Profile, Course, Project } = require('../models');
+const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
 
 describe('Endpoint E2E integration tests', () => {
+  let adminId;
+  let userId;
+  let userToken;
+  let adminToken;
+
   beforeAll(async () => {
     await mongoose.connect(mongoURITest, {
       useNewUrlParser: true,
@@ -17,6 +22,7 @@ describe('Endpoint E2E integration tests', () => {
   });
 
   afterAll(async () => {
+    await User.deleteMany({});
     await mongoose.connection.close();
   });
 
@@ -24,6 +30,57 @@ describe('Endpoint E2E integration tests', () => {
     const res = await request(app).get('/api/v1/false_route');
 
     expect(res.status).toBe(404);
+  });
+
+  describe('Auth endpoints', () => {
+    it('should create a admin user', async () => {
+      const res = await request(app).post('/api/auth/register').send({
+        nickname: 'omarpv',
+        email: 'o@o.com',
+        role: 1,
+        password: 'omar',
+        passwordConfirmation: 'omar',
+      });
+      console.log(res.body.data.role);
+      adminId = res.body.data._id;
+
+      expect(res.status).toBe(201);
+    });
+
+    it('should create a regular user', async () => {
+      const res = await request(app).post('/api/auth/register').send({
+        nickname: 'manuel',
+        email: 'm@m.com',
+        password: 'manuel',
+        passwordConfirmation: 'manuel',
+      });
+      console.log(res.body.data.role);
+      userId = res.body.data._id;
+
+      expect(res.status).toBe(201);
+    });
+
+    it('admin should login successfully', async () => {
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'o@o.com',
+        password: 'omar',
+      });
+
+      adminToken = res.body.data.token;
+
+      expect(res.status).toBe(200);
+    });
+
+    it('user should login successfully', async () => {
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'm@m.com',
+        password: 'manuel',
+      });
+
+      userToken = res.body.data.token;
+
+      expect(res.status).toBe(200);
+    });
   });
 
   describe('Techs endpoints', () => {
@@ -222,6 +279,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should create a course', async () => {
       const res = await request(app)
         .post('/api/courses')
+        .set('Authorization', adminToken)
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
@@ -243,6 +301,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should return a list of courses', async () => {
       const res = await request(app)
         .post('/api/courses')
+        .set('Authorization', adminToken)
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
@@ -253,7 +312,9 @@ describe('Endpoint E2E integration tests', () => {
           techs: [techId],
           done: true,
         });
-      const courses = await request(app).get('/api/courses');
+      const courses = await request(app)
+        .get('/api/courses')
+        .set('Authorization', adminToken);
 
       expect(courses.status).toBe(200);
       expect(courses.body.data).toHaveLength(1);
@@ -262,6 +323,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should update a course', async () => {
       const resCreate = await request(app)
         .post('/api/courses')
+        .set('Authorization', adminToken)
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
@@ -275,24 +337,30 @@ describe('Endpoint E2E integration tests', () => {
 
       courseId = resCreate.body.data._id;
 
-      const resUpdate = await request(app).post('/api/courses').send({
-        _id: courseId,
-        platform: 'OpenWebinars',
-      });
+      const resUpdate = await request(app)
+        .post('/api/courses')
+        .set('Authorization', adminToken)
+        .send({
+          _id: courseId,
+          platform: 'OpenWebinars',
+        });
 
       expect(resUpdate.status).toBe(200);
       expect(resUpdate.body.data).toHaveProperty('platform', 'OpenWebinars');
     });
 
-    it('should throw 404 trying to delete course', async () => {
-      const resDelete = await request(app).delete('/api/courses/' + courseId);
+    it('should throw 404 trying to delete not existing course', async () => {
+      const resDelete = await request(app)
+        .delete('/api/courses/' + courseId)
+        .set('Authorization', adminToken);
 
       expect(resDelete.status).toBe(404);
     });
 
-    it('should delete a course', async () => {
+    it('should throw 403 trying to delete course not created by this user', async () => {
       const resCreate = await request(app)
         .post('/api/courses')
+        .set('Authorization', adminToken)
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
@@ -306,7 +374,33 @@ describe('Endpoint E2E integration tests', () => {
 
       courseId = resCreate.body.data._id;
 
-      const resDelete = await request(app).delete('/api/courses/' + courseId);
+      const resDelete = await request(app)
+        .delete('/api/courses/' + courseId)
+        .set('Authorization', userToken);
+
+      expect(resDelete.status).toBe(403);
+    });
+
+    it('should delete a course', async () => {
+      const resCreate = await request(app)
+        .post('/api/courses')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'Crypto App with React Native',
+          platform: 'Udemy',
+          url:
+            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          language: 'Inglés',
+          duration: 51,
+          techs: [techId],
+          done: true,
+        });
+
+      courseId = resCreate.body.data._id;
+
+      const resDelete = await request(app)
+        .delete('/api/courses/' + courseId)
+        .set('Authorization', adminToken);
 
       expect(resDelete.status).toBe(200);
     });
