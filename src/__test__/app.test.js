@@ -148,7 +148,7 @@ describe('Endpoint E2E integration tests', () => {
       expect(resUpdate.body.data).toHaveProperty('name', 'Apollo Server');
     });
 
-    it('should throw 404 trying to delete no existing tech', async () => {
+    it('should throw 404 trying to delete not existing tech', async () => {
       const resDelete = await request(app)
         .delete('/api/techs/' + techId)
         .set('Authorization', adminToken);
@@ -493,6 +493,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should create a project', async () => {
       const res = await request(app)
         .post('/api/projects')
+        .set('Authorization', userToken)
         .send({
           name: 'API Cuak',
           type: 'backend',
@@ -516,6 +517,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should return a list of projects', async () => {
       const res = await request(app)
         .post('/api/projects')
+        .set('Authorization', userToken)
         .send({
           name: 'API Cuak',
           type: 'backend',
@@ -528,7 +530,9 @@ describe('Endpoint E2E integration tests', () => {
           files: ['https://drive.com/apicuak.zip'],
           pinned: true,
         });
-      const projects = await request(app).get('/api/projects');
+      const projects = await request(app)
+        .get('/api/projects')
+        .set('Authorization', userToken);
 
       expect(projects.status).toBe(200);
       expect(projects.body.data).toHaveLength(1);
@@ -537,6 +541,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should update a project', async () => {
       const resCreate = await request(app)
         .post('/api/projects')
+        .set('Authorization', userToken)
         .send({
           name: 'API Cuak',
           type: 'backend',
@@ -552,10 +557,13 @@ describe('Endpoint E2E integration tests', () => {
 
       projectId = resCreate.body.data._id;
 
-      const resUpdate = await request(app).post('/api/projects').send({
-        _id: projectId,
-        description: 'new description',
-      });
+      const resUpdate = await request(app)
+        .post('/api/projects')
+        .set('Authorization', userToken)
+        .send({
+          _id: projectId,
+          description: 'new description',
+        });
 
       expect(resUpdate.status).toBe(200);
       expect(resUpdate.body.data).toHaveProperty(
@@ -564,15 +572,18 @@ describe('Endpoint E2E integration tests', () => {
       );
     });
 
-    it('should throw 404 trying to delete project', async () => {
-      const resDelete = await request(app).delete('/api/projects/' + projectId);
+    it('should throw 404 trying to delete not existing project', async () => {
+      const resDelete = await request(app)
+        .delete('/api/projects/' + projectId)
+        .set('Authorization', userToken);
 
       expect(resDelete.status).toBe(404);
     });
 
-    it('should delete a project', async () => {
+    it('should throw 401 trying to delete project (invalid token or null)', async () => {
       const resCreate = await request(app)
         .post('/api/projects')
+        .set('Authorization', userToken)
         .send({
           name: 'API Cuak',
           type: 'backend',
@@ -589,6 +600,58 @@ describe('Endpoint E2E integration tests', () => {
       projectId = resCreate.body.data._id;
 
       const resDelete = await request(app).delete('/api/projects/' + projectId);
+
+      expect(resDelete.status).toBe(401);
+    });
+
+    it('should throw 403 trying to delete project (other user token)', async () => {
+      const resCreate = await request(app)
+        .post('/api/projects')
+        .set('Authorization', userToken)
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+
+      projectId = resCreate.body.data._id;
+
+      const resDelete = await request(app)
+        .delete('/api/projects/' + projectId)
+        .set('Authorization', adminToken);
+
+      expect(resDelete.status).toBe(403);
+    });
+
+    it('should delete a project', async () => {
+      const resCreate = await request(app)
+        .post('/api/projects')
+        .set('Authorization', userToken)
+        .send({
+          name: 'API Cuak',
+          type: 'backend',
+          techs: [techId],
+          images: [
+            'https://devopedia.org/images/article/147/8496.1558526064.jpg',
+          ],
+          description: 'API with GraphQL (Apollo Server)',
+          url: 'https://api-graphql-cuak.glitch.me/graphql',
+          files: ['https://drive.com/apicuak.zip'],
+          pinned: true,
+        });
+
+      projectId = resCreate.body.data._id;
+
+      const resDelete = await request(app)
+        .delete('/api/projects/' + projectId)
+        .set('Authorization', userToken);
 
       expect(resDelete.status).toBe(200);
     });

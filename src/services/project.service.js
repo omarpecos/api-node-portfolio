@@ -1,5 +1,9 @@
-const getAllProjects = (Project) => () => {
-  return Project.find({}).sort('-_id').populate('techs', 'name type icon  _id');
+const getAllProjects = (Project) => (userId) => {
+  return Project.find({
+    userId,
+  })
+    .sort('-_id')
+    .populate('techs', 'name type icon  _id');
 };
 
 const createOrUpdateProject = (Project) => (newProject) => {
@@ -11,12 +15,17 @@ const createOrUpdateProject = (Project) => (newProject) => {
 };
 
 const deleteProject = (Project) => (id) => {
-  return Project.findByIdAndDelete(id);
+  return Project.deleteOne({ _id: id });
+};
+
+const getOneProject = (Project) => (id) => {
+  return Project.findById(id);
 };
 
 module.exports = (Project) => {
   return {
     getAllProjects: getAllProjects(Project),
+    getOneProject: getOneProject(Project),
     createOrUpdateProject: createOrUpdateProject(Project),
     deleteProject: deleteProject(Project),
   };
