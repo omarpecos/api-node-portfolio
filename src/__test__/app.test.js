@@ -3,6 +3,7 @@ const request = require('supertest');
 const { MONGO_URI } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
+const { set } = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
 
@@ -41,7 +42,7 @@ describe('Endpoint E2E integration tests', () => {
         password: 'omar',
         passwordConfirmation: 'omar',
       });
-      console.log(res.body.data.role);
+
       adminId = res.body.data._id;
 
       expect(res.status).toBe(201);
@@ -54,7 +55,7 @@ describe('Endpoint E2E integration tests', () => {
         password: 'manuel',
         passwordConfirmation: 'manuel',
       });
-      console.log(res.body.data.role);
+
       userId = res.body.data._id;
 
       expect(res.status).toBe(201);
@@ -90,13 +91,16 @@ describe('Endpoint E2E integration tests', () => {
       await Technology.deleteMany({});
     });
 
-    it('should create a technology', async () => {
-      const res = await request(app).post('/api/techs').send({
-        name: 'GraphQL',
-        type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
-      });
+    it('should create a technology (only admin)', async () => {
+      const res = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
       const techsCount = await Technology.countDocuments();
 
       expect(res.status).toBe(200);
@@ -104,54 +108,106 @@ describe('Endpoint E2E integration tests', () => {
     });
 
     it('should return a list of techs', async () => {
-      const res = await request(app).post('/api/techs').send({
-        name: 'GraphQL',
-        type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
-      });
+      const res = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
       const techs = await request(app).get('/api/techs');
 
       expect(techs.status).toBe(200);
       expect(techs.body.data).toHaveLength(1);
     });
 
-    it('should update a tech', async () => {
-      const resCreate = await request(app).post('/api/techs').send({
-        name: 'GraphQL',
-        type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
-      });
+    it('should update a tech (only admin)', async () => {
+      const resCreate = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
 
       techId = resCreate.body.data._id;
 
-      const resUpdate = await request(app).post('/api/techs').send({
-        _id: techId,
-        name: 'Apollo Server',
-      });
+      const resUpdate = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          _id: techId,
+          name: 'Apollo Server',
+        });
 
       expect(resUpdate.status).toBe(200);
       expect(resUpdate.body.data).toHaveProperty('name', 'Apollo Server');
     });
 
-    it('should throw 404 trying to delete tech', async () => {
-      const resDelete = await request(app).delete('/api/techs/' + techId);
+    it('should throw 404 trying to delete no existing tech', async () => {
+      const resDelete = await request(app)
+        .delete('/api/techs/' + techId)
+        .set('Authorization', adminToken);
 
       expect(resDelete.status).toBe(404);
     });
 
-    it('should delete a tech', async () => {
-      const resCreate = await request(app).post('/api/techs').send({
-        name: 'GraphQL',
-        type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
-      });
+    it('should throw 401 trying to delete tech (invalid or null token)', async () => {
+      const resCreate = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
+
+      techId = resCreate.body.data._id;
+      const resDelete = await request(app).delete('/api/techs/' + techId);
+
+      expect(resDelete.status).toBe(401);
+    });
+
+    it('should throw 403 trying to delete tech (with regular user token)', async () => {
+      const resCreate = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
+      techId = resCreate.body.data._id;
+
+      const resDelete = await request(app)
+        .delete('/api/techs/' + techId)
+        .set('Authorization', userToken);
+
+      expect(resDelete.status).toBe(403);
+    });
+
+    it('should delete a tech (only admin)', async () => {
+      const resCreate = await request(app)
+        .post('/api/techs')
+        .set('Authorization', adminToken)
+        .send({
+          name: 'GraphQL',
+          type: 'backend',
+          icon:
+            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        });
 
       techId = resCreate.body.data._id;
 
-      const resDelete = await request(app).delete('/api/techs/' + techId);
+      const resDelete = await request(app)
+        .delete('/api/techs/' + techId)
+        .set('Authorization', adminToken);
 
       expect(resDelete.status).toBe(200);
     });
