@@ -238,6 +238,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should create a profile', async () => {
       const res = await request(app)
         .post('/api/profile')
+        .set('Authorization', userToken)
         .send({
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
@@ -257,6 +258,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should return most recent profile', async () => {
       const resCreate = await request(app)
         .post('/api/profile')
+        .set('Authorization', userToken)
         .send({
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
@@ -267,7 +269,9 @@ describe('Endpoint E2E integration tests', () => {
           },
           version: 1,
         });
-      const res = await request(app).get('/api/profile');
+      const res = await request(app)
+        .get('/api/profile')
+        .set('Authorization', userToken);
 
       expect(res.status).toBe(200);
       expect(res.body.data.about.skills[0].tech).toHaveProperty(
@@ -279,6 +283,7 @@ describe('Endpoint E2E integration tests', () => {
     it('should update a profile', async () => {
       const resCreate = await request(app)
         .post('/api/profile')
+        .set('Authorization', userToken)
         .send({
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
@@ -294,6 +299,7 @@ describe('Endpoint E2E integration tests', () => {
 
       const resUpdate = await request(app)
         .post('/api/profile')
+        .set('Authorization', userToken)
         .send({
           _id: profileId,
           intro:

@@ -1,6 +1,8 @@
-const getProfile = (Profile) => () => {
+const getProfile = (Profile) => (userId) => {
   // can search for the profile with the highest version if version++ every time
-  return Profile.findOne({})
+  return Profile.findOne({
+    userId,
+  })
     .sort('-_id')
     .populate('about.skills.tech', 'name type icon -_id');
 };
