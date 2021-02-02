@@ -5,6 +5,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NotFoundMiddleware, GeneralErrorMiddleware } = require('./middlewares');
 require('express-async-errors');
+const swaggerUI = require('swagger-ui-express');
+const { SWAGGER_PATH } = require('./config');
+const swaggerDocument = require(SWAGGER_PATH);
 
 //routes
 const {
@@ -25,7 +28,8 @@ app.use(helmet());
 //ROUTES
 
 app.get('/', (req, res) => {
-  res.send('<h1>Hello! Portfolio API is running ;)</h1>');
+  //res.send('<h1>Hello! Portfolio API is running ;)</h1>');
+  res.redirect('/api-docs');
 });
 
 const apiRouter = new Router();
@@ -38,6 +42,8 @@ apiRouter.use('/users', userRouter);
 apiRouter.use('/auth', authRouter);
 
 app.use('/api', apiRouter);
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // MIDDLEWARES
 // for route not found

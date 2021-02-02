@@ -1,0 +1,1198 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API node Portfolio",
+    "version": "1.0.0",
+    "title": "Docs API Portfolio",
+    "contact": {
+      "email": "omarpecos@gmail.com"
+    }
+  },
+  "host": "api-node-portfolio.omarpv.repl.co",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Authorization",
+      "description": "Login / Register"
+    },
+    {
+      "name": "Technology",
+      "description": "Technologies for all users"
+    },
+    {
+      "name": "Profile",
+      "description": "Profiles of the users"
+    },
+    {
+      "name": "Course",
+      "description": "Courses done by users"
+    },
+    {
+      "name": "Project",
+      "description": "Projects developed by users"
+    },
+    {
+      "name": "User",
+      "description": "Users methods"
+    }
+  ],
+  "schemes": ["https"],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Authorization"],
+        "description": "Register new user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/SignUpBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Registered successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "General or registering error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authorization"],
+        "description": "Log in",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/SignInBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succesfully logged in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/definitions/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "General or log in error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/techs": {
+      "get": {
+        "tags": ["Technology"],
+        "summary": "Finds All the techs",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Technology"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Technology"],
+        "summary": "Create new tech if it does not exist or update it ----- ONLY ADMIN ",
+        "description": "If you want to create a new tech you must not pass _id property in body and for update existing tech you must pass _id : ID in the body",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Technology"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "array",
+                  "$ref": "#/definitions/Technology"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/techs/{id}": {
+      "delete": {
+        "tags": ["Technology"],
+        "summary": "Delete technology ----- ONLY ADMIN ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "description": "Tech Id",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Technology"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/profile": {
+      "get": {
+        "tags": ["Profile"],
+        "summary": "Finds the most recent profile ---- ONLY AUTH USERS",
+        "description": "",
+        "produces": ["application/json"],
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/ProfilePopulated"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Create new profile if it does not exist or update it ----- ONLY AUTH USERS ",
+        "description": "If you want to create a new profile you must not pass _id property in body and for update existing profile you must pass _id : ID in the body",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/courses": {
+      "get": {
+        "tags": ["Course"],
+        "summary": "Find all user courses ---- ONLY AUTH USERS",
+        "description": "",
+        "produces": ["application/json"],
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CoursePopulated"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Course"],
+        "summary": "Create new course if it does not exist or update it ----- ONLY AUTH USERS ",
+        "description": "If you want to create a new course you must not pass _id property in body and for update existing course you must pass _id : ID in the body",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Course"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Course"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/courses/{id}": {
+      "delete": {
+        "tags": ["Course"],
+        "summary": "Delete course ----- ONLY AUTH USERS ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "description": "Course Id",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Course"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/projects": {
+      "get": {
+        "tags": ["Project"],
+        "summary": "Find all user projects ---- ONLY AUTH USERS",
+        "description": "",
+        "produces": ["application/json"],
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ProjectPopulated"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Project"],
+        "summary": "Create new project if it does not exist or update it ----- ONLY AUTH USERS ",
+        "description": "If you want to create a new project you must not pass _id property in body and for update existing project you must pass _id : ID in the body",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Project"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/projects/{id}": {
+      "delete": {
+        "tags": ["Project"],
+        "summary": "Delete project ----- ONLY AUTH USERS ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "description": "Project Id",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Project"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/users": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Finds All the Users ----- ONLY ADMIN",
+        "description": "",
+        "produces": ["application/json"],
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/User"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/admin": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Grant or revoke admin privileges to user ----- ONLY ADMIN",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "description": "User Id",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MakeAdminBody"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete one user ----- ONLY ADMIN",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "description": "User Id",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Unathorized",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "number"
+        }
+      }
+    },
+    "Technology": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      }
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "about": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "tech": {
+                    "type": "string",
+                    "default": "techId"
+                  },
+                  "percentage": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "version": {
+          "type": "number"
+        }
+      }
+    },
+    "ProfilePopulated": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "about": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "tech": {
+                    "$ref": "#/definitions/Technology"
+                  },
+                  "percentage": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "version": {
+          "type": "number"
+        }
+      }
+    },
+    "Course": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "number"
+        },
+        "techs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "default": "techId"
+          }
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "CoursePopulated": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "number"
+        },
+        "techs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Technology"
+          }
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "techs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "default": "techId"
+          }
+        },
+        "images": {
+          "type": "array",
+          "default": ["image1 url", "image2 url"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "repo_url": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "default": ["file1 url", "file2 url"]
+        },
+        "pinned": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "ProjectPopulated": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "techs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Technology"
+          }
+        },
+        "images": {
+          "type": "array",
+          "default": ["image1 url", "image2 url"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "repo_url": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "default": ["file1 url", "file2 url"]
+        },
+        "pinned": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "perPage": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      }
+    },
+    "ApiErrorResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "default": "error"
+        },
+        "error": {
+          "type": "string"
+        },
+        "data": {
+          "default": null
+        }
+      }
+    },
+    "SignInBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "SignUpBody": {
+      "type": "object",
+      "properties": {
+        "nickname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirmation": {
+          "type": "string"
+        }
+      }
+    },
+    "MakeAdminBody": {
+      "type": "object",
+      "properties": {
+        "admin": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  }
+}
