@@ -22,12 +22,32 @@ projectRouter.post('/', AuthenticationMiddleware, async (req, res) => {
   const {
     user: { _id: userId },
   } = req;
-
   const { body: newProject } = req;
-  if (newProject._id == null) newProject._id = mongo.ObjectId();
 
-  newProject.userId = userId;
-  const project = await ProjectService.createOrUpdateProject(newProject);
+  let project;
+
+  if (newProject._id == null) {
+    //creating new Project
+    newProject._id = mongo.ObjectId();
+    newProject.userId = userId;
+  } else {
+    // is editing existing project
+    project = await ProjectService.getOneProject(newProject._id);
+
+    if (!project) {
+      const err = new Error('Project not found');
+      err.status = 404;
+      throw err;
+    }
+
+    if (project.userId != userId) {
+      const err = new Error('Unathorized - This is not your project');
+      err.status = 403;
+      throw err;
+    }
+  }
+
+  project = await ProjectService.createOrUpdateProject(newProject);
 
   res.status(200).json({
     status: 'success',

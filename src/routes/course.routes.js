@@ -23,10 +23,31 @@ courseRouter.post('/', AuthenticationMiddleware, async (req, res) => {
     user: { _id: userId },
   } = req;
   const { body: newCourse } = req;
-  if (newCourse._id == null) newCourse._id = mongo.ObjectId();
 
-  newCourse.userId = userId;
-  const course = await CourseService.createOrUpdateCourse(newCourse);
+  let course;
+
+  if (newCourse._id == null) {
+    // creating new course
+    newCourse._id = mongo.ObjectId();
+    newCourse.userId = userId;
+  } else {
+    // is editing existing course
+    course = await CourseService.getOneCourse(newCourse._id);
+
+    if (!course) {
+      const err = new Error('Course not found');
+      err.status = 404;
+      throw err;
+    }
+
+    if (course.userId != userId) {
+      const err = new Error('Unathorized - This is not your course');
+      err.status = 403;
+      throw err;
+    }
+  }
+
+  course = await CourseService.createOrUpdateCourse(newCourse);
 
   res.status(200).json({
     status: 'success',

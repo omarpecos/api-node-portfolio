@@ -7,6 +7,12 @@ const getProfile = (Profile) => (userId) => {
     .populate('about.skills.tech', 'name type icon -_id');
 };
 
+const getOneProfileById = (Profile) => (id) => {
+  return Profile.findOne({
+    _id: id,
+  });
+};
+
 const createOrUpdateProfile = (Profile) => (newProfile) => {
   return Profile.findOneAndUpdate({ _id: newProfile._id }, newProfile, {
     upsert: true,
@@ -18,6 +24,7 @@ const createOrUpdateProfile = (Profile) => (newProfile) => {
 module.exports = (Profile) => {
   return {
     getProfile: getProfile(Profile),
+    getOneProfileById: getOneProfileById(Profile),
     createOrUpdateProfile: createOrUpdateProfile(Profile),
   };
 };

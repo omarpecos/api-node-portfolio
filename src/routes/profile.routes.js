@@ -24,11 +24,30 @@ profileRouter.post('/', AuthenticationMiddleware, async (req, res) => {
   } = req;
   const { body: newProfile } = req;
 
-  if (newProfile._id == null) newProfile._id = mongo.ObjectId();
+  let profile;
 
-  newProfile.userId = userId;
+  if (newProfile._id == null) {
+    //create new profile
+    newProfile._id = mongo.ObjectId();
+    newProfile.userId = userId;
+  } else {
+    // is editing existing profile
+    profile = await ProfileService.getOneProfileById(newProfile._id);
 
-  const profile = await ProfileService.createOrUpdateProfile(newProfile);
+    if (!profile) {
+      const err = new Error('Profile not found');
+      err.status = 404;
+      throw err;
+    }
+
+    if (profile.userId != userId) {
+      const err = new Error('Unathorized - This is not your profile');
+      err.status = 403;
+      throw err;
+    }
+  }
+
+  profile = await ProfileService.createOrUpdateProfile(newProfile);
 
   res.status(200).json({
     status: 'success',
