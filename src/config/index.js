@@ -5,4 +5,5 @@ module.exports = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   SWAGGER_PATH: `./config/swagger/${process.env.SWAGGER_DOC}.json`,
+  MASTER_PASS : process.env.MASTER_PASS
 };

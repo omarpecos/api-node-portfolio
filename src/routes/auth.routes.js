@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { AuthService, UserService } = require('../services');
 const { hashPassword, comparePasswords, createToken } = require('../utils');
 const JWT = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config');
+const { JWT_SECRET,MASTER_PASS } = require('../config');
 
 const authRouter = new Router();
 
@@ -22,6 +22,14 @@ authRouter.post('/register', async (req, res) => {
   const hashedPass = hashPassword(pass);
   body.password = hashedPass;
   delete body.passwordConfirmation;
+
+  let role = 0;
+  const {masterPass : secretPass} = body;
+  if (secretPass == MASTER_PASS){
+    role = 1;
+  }
+
+  body.role = role;
 
   const user = await AuthService.doSignUp(body);
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const { MONGO_URI } = require('../config');
+const { MONGO_URI,MASTER_PASS } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
 //const { set } = require('../app');
@@ -38,7 +38,7 @@ describe('Endpoint E2E integration tests', () => {
       const res = await request(app).post('/api/auth/register').send({
         nickname: 'omarpv',
         email: 'o@o.com',
-        role: 1,
+        masterPass : MASTER_PASS,
         password: 'omar',
         passwordConfirmation: 'omar',
       });
