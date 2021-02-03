@@ -3,7 +3,7 @@ const request = require('supertest');
 const { MONGO_URI } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
-const { set } = require('../app');
+//const { set } = require('../app');
 
 const mongoURITest = MONGO_URI + '_test';
 

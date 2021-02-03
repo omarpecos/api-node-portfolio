@@ -1,6 +1,8 @@
 const { Router } = require('express');
 const { AuthService, UserService } = require('../services');
 const { hashPassword, comparePasswords, createToken } = require('../utils');
+const JWT = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config');
 
 const authRouter = new Router();
 
@@ -53,6 +55,27 @@ authRouter.post('/login', async (req, res) => {
       token,
       user: decoded,
     },
+  });
+});
+
+authRouter.get('/isAuthenticated', (req, res) => {
+  let authenticated;
+
+  let token = req.headers['authorization'];
+  if (!token) {
+    authenticated = false;
+  } else {
+    try {
+      const decoded = JWT.verify(token, JWT_SECRET);
+
+      authenticated = true;
+    } catch (err) {
+      authenticated = false;
+    }
+  }
+
+  res.json({
+    authenticated,
   });
 });
 
