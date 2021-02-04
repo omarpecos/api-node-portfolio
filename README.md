@@ -115,30 +115,41 @@ For a more extense Documentation and for trying the endpoints
 
 #### Authentication
 > POST - **URL**/api/auth/register
+
 > POST - **URL**/api/login
 #### Users
 > GET - **URL**/api/users - ONLY ADMIN
+
 > POST - **URL**/api/users/:id/admin (Make admin) - ONLY ADMIN
+
 > PATCH - **URL**/api/users/:id - ONLY AUTH USERS
+
 > DELETE - **URL**/api/users/:id - ONLY ADMIN
 
 #### Technologies
 > GET - **URL**/api/techs 
+
 > POST - **URL**/api/techs - ONLY ADMIN
+
 > DELETE - **URL**/api/techs/:id - ONLY ADMIN
 
 #### Profile
 > GET - **URL**/api/profile - ONLY AUTH USERS
+
 > POST -  **URL**/api/profile - ONLY AUTH USERS
 
 #### Courses
 > GET - **URL**/api/courses - ONLY AUTH USERS
+
 > POST - **URL**/api/courses - ONLY AUTH USERS
+
 > DELETE - **URL**/api/courses/:id - ONLY AUTH USERS
 
 #### Projects
 > GET - **URL**/api/projects - ONLY AUTH USERS
+
 > POST - **URL**/api/projects - ONLY AUTH USERS
+
 > DELETE - **URL**/api/projects/:id - ONLY AUTH USERS
 
 ## Installation and Usage
