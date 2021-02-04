@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { UserService } = require('../services');
+const { hashPassword } = require('../utils');
 
 const {
   AuthorizationMiddleware,
@@ -84,5 +85,52 @@ userRouter.delete(
     });
   }
 );
+
+userRouter.patch('/:id', AuthenticationMiddleware , async (req, res) => {
+  const {
+    user: { _id: userId, role : userRole },
+  } = req;
+  const {id} = req.params;
+  const { body } = req;
+
+  //trying to edit password
+  if (body.password && body.passwordConfirmation){
+    
+      if (body.password != body.passwordConfirmation)
+        throw Error('The passwords do not match!');
+  }
+  
+  let user = await UserService.getOneUserById(id);
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
+    throw err;
+  }
+
+  if (user._id != userId && userRole == 0){
+    // a regular user is trying to edit other user profile
+    const err = new Error('Unauthorized - This is not your profile');
+    err.status = 403;
+    throw err;
+  }
+
+  //trying to edit password
+  if (body.password && body.passwordConfirmation){
+    const { password: pass } = body;
+    const hashedPass = hashPassword(pass);
+    body.password = hashedPass;
+    delete body.passwordConfirmation;
+  }
+
+  if(body.role)
+    delete body.role;
+
+  user = await UserService.editOneUser(id,body);
+
+  res.status(200).json({
+    status: 'success',
+    data: user,
+  });
+});
 
 module.exports = userRouter;

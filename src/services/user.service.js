@@ -14,11 +14,18 @@ const getOneUserByIdAndDelete = (User) => (id) => {
   return User.findByIdAndDelete(id);
 };
 
+const editOneUser = User => (id,body) =>{
+  return User.findOneAndUpdate({
+    _id : id
+  },body,{new : true})
+}
+
 module.exports = (User) => {
   return {
     getAllUsers: getAllUsers(User),
     getUserByEmail: getUserByEmail(User),
     getOneUserById: getOneUserById(User),
     getOneUserByIdAndDelete: getOneUserByIdAndDelete(User),
+    editOneUser : editOneUser(User)
   };
 };

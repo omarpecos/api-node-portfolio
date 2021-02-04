@@ -84,6 +84,100 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
+  describe('Users endpoints', () =>{
+
+    it('should return a list of users', async () =>{
+      const res = await request(app)
+        .get('/api/users')
+        .set('Authorization', adminToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(2)
+    });
+
+    it('should return 403 trying to edit other user (not admin)', async () =>{
+      const res = await request(app)
+        .patch('/api/users/' + adminId)
+        .send({
+          nickname : 'newNick'
+        })
+        .set('Authorization', userToken);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('should grant successfully a user', async () =>{
+      const res = await request(app)
+        .post('/api/users/' + userId + '/admin')
+        .send({
+          admin : true
+        })
+        .set('Authorization', adminToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.role).toBe(1);
+    });
+
+    it('should revoke successfully a user', async () =>{
+      const res = await request(app)
+        .post('/api/users/' + userId + '/admin')
+        .send({
+          admin : false
+        })
+        .set('Authorization', adminToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.role).toBe(0);
+    });
+
+    it('should edit other user (admin)', async () =>{
+      const res = await request(app)
+        .patch('/api/users/' + userId)
+        .send({
+          nickname : 'newNick'
+        })
+        .set('Authorization', adminToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.nickname).toBe('newNick');
+    });
+
+    it('should delete other user (admin)', async () =>{
+      const resCreate = await request(app).post('/api/auth/register').send({
+        nickname: 'otro',
+        email: 'otro@otro.com',
+        password: 'otro',
+        passwordConfirmation: 'otro',
+      });
+
+      let otherUserId = resCreate.body.data._id;
+
+      const res = await request(app)
+        .delete('/api/users/' + otherUserId)
+        .set('Authorization', adminToken);
+
+      expect(res.status).toBe(200);
+    });
+
+    it('should throw 403 trying to delete other user (no admin)', async () =>{
+      const resCreate = await request(app).post('/api/auth/register').send({
+        nickname: 'otro',
+        email: 'otro@otro.com',
+        password: 'otro',
+        passwordConfirmation: 'otro',
+      });
+
+      let otherUserId = resCreate.body.data._id;
+
+      const res = await request(app)
+        .delete('/api/users/' + otherUserId)
+        .set('Authorization', userToken);
+
+      expect(res.status).toBe(403);
+    });
+
+  });
+
   describe('Techs endpoints', () => {
     let techId;
 
