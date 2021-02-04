@@ -4,31 +4,43 @@ API Porfolio
 - [API Porfolio](#api-porfolio)
   * [Description](#description)
     + [Mongoose Models](#mongoose-models)
+      - [User](#user)
       - [Technology](#technology)
       - [Profile](#profile)
       - [Course](#course)
       - [Project](#project)
+    + [Swagger](#swagger)
     + [Routes](#routes)
+      - [Authentication](#authentication)
+      - [Users](#users)
       - [Technologies](#technologies)
       - [Profile](#profile-1)
       - [Courses](#courses)
       - [Projects](#projects)
   * [Installation and Usage](#installation-and-usage)
       - [Development server](#development-server)
+      - [Tests](#tests)
   * [Url of the API deployed](#url-of-the-api-deployed)
-          + [tags: `Documentation` `Node` `Express` `Mongoose` `API`](#tags---documentation---node---express---mongoose---api-)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
 
 ## Description
 
 This project is a **Node** + **Express** + **Mongoose (MongoDB)** APIRest using **async/await** 
-to store data related to my proffesional portfolio or personal website. It stores data from technologies, courses, profiles and projects.
+to store data related to our proffesional portfolios or personal websites. It stores data from technologies, courses, profiles and projects. It has **authentication** and **authorization** with **JWT** (json web tokens)
 
 The original idea is to use this API data and then build a static site using [Gridsome](https://gridsome.org/)
 
 ### Mongoose Models
+
+#### User
+
+```gherkin=
+const userSchema = new Schema({
+  nickname: String,
+  email: String,
+  password: String,
+  role: { type: Number, default: 0 },
+});
+```
 
 #### Technology
 
@@ -87,40 +99,47 @@ The original idea is to use this API data and then build a static site using [Gr
     images : [String],
     description : String,
     url : String,
+    repo_url : String,
     files : [String],
     pinned : {type : Boolean, default : false}
 })
 ```
+### Swagger
+For a more extense Documentation and for trying the endpoints
+
+[API Portfolio - Swagger UI](https://api-node-portfolio.omarpv.repl.co/api-docs)
 
 ### Routes
-
 > **URL** is `http://localhost:9000`
 
+
+#### Authentication
+> POST - **URL**/api/auth/register
+> POST - **URL**/api/login
+#### Users
+> GET - **URL**/api/users - ONLY ADMIN
+> POST - **URL**/api/users/:id/admin (Make admin) - ONLY ADMIN
+> PATCH - **URL**/api/users/:id - ONLY AUTH USERS
+> DELETE - **URL**/api/users/:id - ONLY ADMIN
+
 #### Technologies
-> GET - **URL**/api/techs
-
-> POST - **URL**/api/techs
-
-> DELETE - **URL**/api/techs/:id
+> GET - **URL**/api/techs 
+> POST - **URL**/api/techs - ONLY ADMIN
+> DELETE - **URL**/api/techs/:id - ONLY ADMIN
 
 #### Profile
-> GET - **URL**/api/profile
-
-> POST -  **URL**/api/profile
+> GET - **URL**/api/profile - ONLY AUTH USERS
+> POST -  **URL**/api/profile - ONLY AUTH USERS
 
 #### Courses
-> GET - **URL**/api/courses
-
-> POST - **URL**/api/courses
-
-> DELETE - **URL**/api/courses/:id
+> GET - **URL**/api/courses - ONLY AUTH USERS
+> POST - **URL**/api/courses - ONLY AUTH USERS
+> DELETE - **URL**/api/courses/:id - ONLY AUTH USERS
 
 #### Projects
-> GET - **URL**/api/projects
-
-> POST - **URL**/api/projects
-
-> DELETE - **URL**/api/projects/:id
+> GET - **URL**/api/projects - ONLY AUTH USERS
+> POST - **URL**/api/projects - ONLY AUTH USERS
+> DELETE - **URL**/api/projects/:id - ONLY AUTH USERS
 
 ## Installation and Usage
 
@@ -132,10 +151,15 @@ Run `npm run dev` or `nodemon index.js` for a start server (with file changes re
 
 Run `npm start` or `node index.js` for a start production server. The API will be listening at `http://localhost:9000/`
 
+#### Tests
+
+The API use **Jest** and **Supertest** to have Unit tests to test one service and has Integration tests to test all the endpoints 
+
+Run `npm test` to run tests
 
 Url of the API deployed
 ---
-> [API Porfolio](https://api-node-portfolio.omarpv.repl.co/)
+> [API Porfolio](https://api-node-portfolio.omarpv.repl.co/) 
 
 Deployed with [Repl.it](https://repl.it/)
 
