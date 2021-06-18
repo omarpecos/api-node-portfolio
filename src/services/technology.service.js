@@ -1,5 +1,5 @@
 const getAllTechs = (Technology) => () => {
-  return Technology.find({});
+  return Technology.find({}).sort('type');
 };
 
 const createOrUpdateTech = (Technology) => (newTech) => {

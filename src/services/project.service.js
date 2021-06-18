@@ -2,7 +2,10 @@ const getAllProjects = (Project) => (userId) => {
   return Project.find({
     userId,
   })
-    .sort('-_id')
+    .sort([
+      ['type', 'asc'],
+      ['_id', 'desc'],
+    ])
     .populate('techs', 'name type icon  _id');
 };
 

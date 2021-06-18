@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const orderBy = require('lodash/orderBy');
 
 const profileSchema = new Schema({
   intro: String,
@@ -14,6 +15,18 @@ const profileSchema = new Schema({
   },
   version: Number,
 });
+
+profileSchema.methods.toJSON = function () {
+  const profile = this.toObject();
+  //lodash orderBy
+  const skills = orderBy(
+    profile.about.skills,
+    ['tech.type', 'percentage'],
+    ['asc', 'desc']
+  );
+  profile.about.skills = skills;
+  return profile;
+};
 
 const Profile = new model('Profile', profileSchema);
 

@@ -3,7 +3,7 @@ const getUserByEmail = (User) => (email) => {
 };
 
 const getAllUsers = (User) => () => {
-  return User.find({});
+  return User.find({}).sort('-_id');
 };
 
 const getOneUserById = (User) => (id) => {
@@ -14,11 +14,15 @@ const getOneUserByIdAndDelete = (User) => (id) => {
   return User.findByIdAndDelete(id);
 };
 
-const editOneUser = User => (id,body) =>{
-  return User.findOneAndUpdate({
-    _id : id
-  },body,{new : true})
-}
+const editOneUser = (User) => (id, body) => {
+  return User.findOneAndUpdate(
+    {
+      _id: id,
+    },
+    body,
+    { new: true }
+  );
+};
 
 module.exports = (User) => {
   return {
@@ -26,6 +30,6 @@ module.exports = (User) => {
     getUserByEmail: getUserByEmail(User),
     getOneUserById: getOneUserById(User),
     getOneUserByIdAndDelete: getOneUserByIdAndDelete(User),
-    editOneUser : editOneUser(User)
+    editOneUser: editOneUser(User),
   };
 };
