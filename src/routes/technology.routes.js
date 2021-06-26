@@ -1,56 +1,35 @@
 const { Router } = require('express');
-const { mongo } = require('mongoose');
-const { TechService } = require('../services');
+const { TechController } = require('../controllers');
 const {
   AuthenticationMiddleware,
   AuthorizationMiddleware,
 } = require('../middlewares');
+const { techMiddleware: middleware } = require('../middlewares/resources');
 
 const techRouter = Router();
 
-techRouter.get('/', async (req, res) => {
-  const techs = await TechService.getAllTechs();
+techRouter
+  .route('/')
+  .get(TechController.listTechs)
+  .post(
+    AuthenticationMiddleware,
+    AuthorizationMiddleware,
+    TechController.createTech
+  );
 
-  res.status(200).json({
-    status: 'success',
-    data: techs,
-  });
-});
-
-techRouter.post(
-  '/',
-  [AuthenticationMiddleware, AuthorizationMiddleware],
-  async (req, res) => {
-    const { body: newTech } = req;
-    if (newTech._id == null) newTech._id = mongo.ObjectId();
-
-    const tech = await TechService.createOrUpdateTech(newTech);
-
-    res.status(200).json({
-      status: 'success',
-      data: tech,
-    });
-  }
-);
-
-techRouter.delete(
-  '/:id',
-  [AuthenticationMiddleware, AuthorizationMiddleware],
-  async (req, res) => {
-    const { id } = req.params;
-    const tech = await TechService.deleteTech(id);
-
-    if (!tech) {
-      const err = new Error('Tech not found');
-      err.status = 404;
-      throw err;
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: tech,
-    });
-  }
-);
+techRouter
+  .route('/:techUuid')
+  .put(
+    AuthenticationMiddleware,
+    AuthorizationMiddleware,
+    middleware.loadTech,
+    TechController.updateTech
+  )
+  .delete(
+    AuthenticationMiddleware,
+    AuthorizationMiddleware,
+    middleware.loadTech,
+    TechController.deleteTech
+  );
 
 module.exports = techRouter;

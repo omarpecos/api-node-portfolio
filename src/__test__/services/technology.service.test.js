@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const TechService = require('../../services/technology.service');
 
-describe('TechService tests', () => {
+describe.skip('TechService tests', () => {
   it('has a module', () => {
     expect(TechService).toBeDefined();
   });
@@ -49,8 +49,7 @@ describe('TechService tests', () => {
     techService.createOrUpdateTech({
       name: 'GraphQL',
       type: 'backend',
-      icon:
-        'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+      icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
     });
     const expected = true;
     const actual = findOneAndUpdate.calledOnce;
