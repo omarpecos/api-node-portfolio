@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const { MONGO_URI, MASTER_PASS } = require('../config');
+const { MONGO_URI } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
+const { hashPassword } = require('../utils');
 
-const mongoURITest = MONGO_URI + '_test';
+const mongoURITest = MONGO_URI.replace(
+  'omarpv_portfolio_db',
+  'omarpv_portfolio_db_test'
+);
+console.log('mi cadena de tests !! >>> ', mongoURITest);
 
 describe('Endpoint E2E integration tests', () => {
   let adminId;
@@ -26,7 +31,7 @@ describe('Endpoint E2E integration tests', () => {
     await mongoose.connection.close();
   });
 
-  it('should return a 404 if the route is not defined', async () => {
+  it.only('should return a 404 if the route is not defined', async () => {
     const res = await request(app).get('/api/v1/false_route');
 
     expect(res.status).toBe(404);
@@ -34,17 +39,18 @@ describe('Endpoint E2E integration tests', () => {
 
   describe.only('Auth endpoints', () => {
     it('should create a admin user', async () => {
-      const res = await request(app).post('/api/auth/register').send({
+      const hashedPass = hashPassword('omar');
+      const admin = await User.create({
         nickname: 'omarpv',
         email: 'o@o.com',
-        masterPass: MASTER_PASS,
-        password: 'omar',
-        passwordConfirmation: 'omar',
+        role: 1,
+        password: hashedPass,
       });
 
-      adminId = res.body.data._id;
+      adminId = admin._id;
 
-      expect(res.status).toBe(201);
+      expect(admin.role).toBe(1);
+      expect(admin.email).toBe('o@o.com');
     });
 
     it('should create a regular user', async () => {
@@ -174,7 +180,7 @@ describe('Endpoint E2E integration tests', () => {
       expect(res.status).toBe(403);
     });
   });
-  // WIP ----->>>>
+
   describe.only('Techs endpoints', () => {
     let techId;
 
