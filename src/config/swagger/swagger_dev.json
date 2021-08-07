@@ -791,7 +791,7 @@
       }
     },
     "/users/{id}/admin": {
-      "post": {
+      "patch": {
         "tags": ["User"],
         "summary": "Grant or revoke admin privileges to user ----- ONLY ADMIN",
         "description": "",
@@ -857,7 +857,7 @@
       }
     },
     "/users/{id}": {
-      "patch": {
+      "put": {
         "tags": ["User"],
         "summary": "Edit user profile only if it is your profile ----- ONLY AUTH USERS",
         "description": "Only the ADMIN can edit other users profile",

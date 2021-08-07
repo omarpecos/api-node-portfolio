@@ -16,6 +16,8 @@ const createToken = (data) => {
   return token;
 };
 
+const verifyToken = (token) => JWT.verify(token, JWT_SECRET);
+
 const createDefaultUsers = async () => {
   const usersCount = await User.countDocuments();
 
@@ -43,5 +45,6 @@ module.exports = {
   hashPassword,
   comparePasswords,
   createToken,
+  verifyToken,
   createDefaultUsers,
 };

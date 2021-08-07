@@ -3,8 +3,8 @@ const { TechController } = require('../controllers');
 const {
   AuthenticationMiddleware,
   AuthorizationMiddleware,
+  techMiddleware: middleware,
 } = require('../middlewares');
-const { techMiddleware: middleware } = require('../middlewares/resources');
 
 const techRouter = Router();
 

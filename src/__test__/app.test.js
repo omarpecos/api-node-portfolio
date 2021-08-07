@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const { MONGO_URI } = require('../config');
+const { MONGO_URI, MONGO_DB_NAME } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
 const { hashPassword } = require('../utils');
 
-const mongoURITest = MONGO_URI.replace(
-  'omarpv_portfolio_db',
-  'omarpv_portfolio_db_test'
-);
-console.log('mi cadena de tests !! >>> ', mongoURITest);
+const mongoURITest = MONGO_URI.replace(MONGO_DB_NAME, `${MONGO_DB_NAME}_test`);
 
 describe('Endpoint E2E integration tests', () => {
   let adminId;
@@ -89,7 +85,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe('Users endpoints', () => {
+  describe.only('Users endpoints', () => {
     it('should return a list of users', async () => {
       const res = await request(app)
         .get('/api/users')
@@ -101,7 +97,7 @@ describe('Endpoint E2E integration tests', () => {
 
     it('should return 403 trying to edit other user (not admin)', async () => {
       const res = await request(app)
-        .patch('/api/users/' + adminId)
+        .put('/api/users/' + adminId)
         .send({
           nickname: 'newNick',
         })
@@ -112,7 +108,7 @@ describe('Endpoint E2E integration tests', () => {
 
     it('should grant successfully a user', async () => {
       const res = await request(app)
-        .post('/api/users/' + userId + '/admin')
+        .patch('/api/users/' + userId + '/admin')
         .send({
           admin: true,
         })
@@ -124,7 +120,7 @@ describe('Endpoint E2E integration tests', () => {
 
     it('should revoke successfully a user', async () => {
       const res = await request(app)
-        .post('/api/users/' + userId + '/admin')
+        .patch('/api/users/' + userId + '/admin')
         .send({
           admin: false,
         })
@@ -136,7 +132,7 @@ describe('Endpoint E2E integration tests', () => {
 
     it('should edit other user (admin)', async () => {
       const res = await request(app)
-        .patch('/api/users/' + userId)
+        .put('/api/users/' + userId)
         .send({
           nickname: 'newNick',
         })
