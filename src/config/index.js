@@ -6,5 +6,5 @@ module.exports = {
   MONGO_DB_NAME: process.env.MONGO_DB_NAME,
   JWT_SECRET: process.env.JWT_SECRET,
   SWAGGER_PATH: `./config/swagger/${process.env.SWAGGER_DOC}.json`,
-  MASTER_PASS: process.env.MASTER_PASS, // TODO - delete
+  MASTER_PASS: process.env.MASTER_PASS, // using for default created admin password
 };

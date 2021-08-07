@@ -70,7 +70,6 @@ const isAuthenticated = (req, res) => {
   } else {
     try {
       const decoded = verifyToken(token);
-      console.log(decoded);
 
       authenticated = true;
     } catch (err) {

@@ -370,8 +370,8 @@
       },
       "post": {
         "tags": ["Profile"],
-        "summary": "Create new profile if it does not exist or update it ----- ONLY AUTH USERS ",
-        "description": "If you want to create a new profile you must not pass _id property in body and for update existing profile you must pass _id : ID in the body",
+        "summary": "Create new profile ----- ONLY AUTH USERS ",
+        "description": "",
         "security": {
           "basicAuth": {
             "type": "basic"
@@ -379,6 +379,64 @@
         },
         "produces": ["application/json"],
         "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/profile/:profileUuid": {
+      "put": {
+        "tags": ["Profile"],
+        "summary": "Update existing profile ----- ONLY AUTH USERS ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "profileUuid",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
           {
             "in": "body",
             "name": "body",

@@ -299,7 +299,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe('Profile endpoints', () => {
+  describe.only('Profile endpoints', () => {
     let techId;
     let techName;
 
@@ -352,6 +352,13 @@ describe('Endpoint E2E integration tests', () => {
           },
           version: 1,
         });
+      const resUpdate = await request(app)
+        .put('/api/profile/' + resCreate.body.data._id)
+        .set('Authorization', userToken)
+        .send({
+          intro: 'bla bla bla ...',
+          version: 2, // TODO: do incremental version in back not in front!
+        });
       const res = await request(app)
         .get('/api/profile')
         .set('Authorization', userToken);
@@ -361,6 +368,7 @@ describe('Endpoint E2E integration tests', () => {
         'name',
         techName
       );
+      expect(res.body.data.version).toBe(2);
     });
 
     it('should update a profile', async () => {
@@ -380,10 +388,9 @@ describe('Endpoint E2E integration tests', () => {
       let profileId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/profile')
+        .put('/api/profile/' + profileId)
         .set('Authorization', userToken)
         .send({
-          _id: profileId,
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
           about: {
