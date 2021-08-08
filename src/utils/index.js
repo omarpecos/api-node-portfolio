@@ -1,6 +1,6 @@
 const { hashSync, compareSync } = require('bcrypt');
 const JWT = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config');
+const { JWT_SECRET, MASTER_PASS } = require('../config');
 const { User } = require('../models');
 
 const hashPassword = (pass) => {
@@ -16,32 +16,35 @@ const createToken = (data) => {
   return token;
 };
 
-const createDefaultUsers = async () =>{
+const verifyToken = (token) => JWT.verify(token, JWT_SECRET);
+
+const createDefaultUsers = async () => {
   const usersCount = await User.countDocuments();
 
-  if (usersCount == 0){
-    let adminPassword = hashPassword('omar');
+  if (usersCount == 0) {
+    let adminPassword = hashPassword(MASTER_PASS);
     let userPassword = hashPassword('user');
 
     await User.create({
       nickname: 'omarpv',
       email: 'o@o.com',
-      role : 1,
-      password : adminPassword
-    })
+      role: 1,
+      password: adminPassword,
+    });
 
     await User.create({
       nickname: 'user',
       email: 'user@user.com',
-      role : 0,
-      password : userPassword
-    })
+      role: 0,
+      password: userPassword,
+    });
   }
-}
+};
 
 module.exports = {
   hashPassword,
   comparePasswords,
   createToken,
-  createDefaultUsers
+  verifyToken,
+  createDefaultUsers,
 };

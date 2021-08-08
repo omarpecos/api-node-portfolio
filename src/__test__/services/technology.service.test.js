@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const TechService = require('../../services/technology.service');
 
-describe('TechService tests', () => {
+describe.only('TechService tests', () => {
   it('has a module', () => {
     expect(TechService).toBeDefined();
   });
@@ -12,7 +12,11 @@ describe('TechService tests', () => {
       find: () => {},
     };
 
-    sinon.stub(MockModel, 'find').callsFake(() => sinon.stub().returns());
+    sinon.stub(MockModel, 'find').callsFake(() => {
+      return {
+        sort: () => sinon.stub().returns(),
+      };
+    });
 
     /** In case we have chained methods 
        * 
@@ -38,57 +42,56 @@ describe('TechService tests', () => {
     expect(actual).toBe(expected);
   });
 
-  it('createOrUpdate test - Create', () => {
-    const findOneAndUpdate = sinon.spy();
+  it('Create test', () => {
+    const create = sinon.spy();
 
     const MockModel = {
-      findOneAndUpdate,
+      create,
     };
 
     const techService = TechService(MockModel);
-    techService.createOrUpdateTech({
+    techService.createTech({
       name: 'GraphQL',
       type: 'backend',
-      icon:
-        'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+      icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
     });
     const expected = true;
-    const actual = findOneAndUpdate.calledOnce;
+    const actual = create.calledOnce;
 
     expect(actual).toBe(expected);
-    expect(findOneAndUpdate.calledWithMatch({ _id: undefined })).toBe(expected);
+    expect(create.calledWithMatch({ _id: undefined })).toBe(expected);
   });
 
-  it('createOrUpdate test - Update', () => {
-    const findOneAndUpdate = sinon.spy();
+  it('Update test', () => {
+    const findByIdAndUpdate = sinon.spy();
 
     const MockModel = {
-      findOneAndUpdate,
+      findByIdAndUpdate,
     };
 
     const techService = TechService(MockModel);
-    techService.createOrUpdateTech({
+    techService.updateTech({
       _id: 'id456349898f',
       type: 'fullstack',
     });
     const expected = true;
-    const actual = findOneAndUpdate.calledOnce;
+    const actual = findByIdAndUpdate.calledOnce;
 
     expect(actual).toBe(expected);
-    expect(findOneAndUpdate.calledWithMatch({ _id: 'id456349898f' })).toBe(
+    expect(findByIdAndUpdate.calledWithMatch({ _id: 'id456349898f' })).toBe(
       expected
     );
   });
 
   it('deleteTech test', () => {
     const MockModel = {
-      findByIdAndDelete: sinon.spy(),
+      deleteOne: sinon.spy(),
     };
 
     const techService = TechService(MockModel);
     techService.deleteTech('id456349898f');
     const expected = true;
-    const actual = MockModel.findByIdAndDelete.calledOnce;
+    const actual = MockModel.deleteOne.calledOnce;
 
     expect(actual).toBe(expected);
   });

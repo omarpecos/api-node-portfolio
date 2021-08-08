@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const { MONGO_URI,MASTER_PASS } = require('../config');
+const { MONGO_URI, MONGO_DB_NAME } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
-//const { set } = require('../app');
+const { hashPassword } = require('../utils');
 
-const mongoURITest = MONGO_URI + '_test';
+const mongoURITest = MONGO_URI.replace(MONGO_DB_NAME, `${MONGO_DB_NAME}_test`);
 
 describe('Endpoint E2E integration tests', () => {
   let adminId;
@@ -27,25 +27,26 @@ describe('Endpoint E2E integration tests', () => {
     await mongoose.connection.close();
   });
 
-  it('should return a 404 if the route is not defined', async () => {
+  it.only('should return a 404 if the route is not defined', async () => {
     const res = await request(app).get('/api/v1/false_route');
 
     expect(res.status).toBe(404);
   });
 
-  describe('Auth endpoints', () => {
+  describe.only('Auth endpoints', () => {
     it('should create a admin user', async () => {
-      const res = await request(app).post('/api/auth/register').send({
+      const hashedPass = hashPassword('omar');
+      const admin = await User.create({
         nickname: 'omarpv',
         email: 'o@o.com',
-        masterPass : MASTER_PASS,
-        password: 'omar',
-        passwordConfirmation: 'omar',
+        role: 1,
+        password: hashedPass,
       });
 
-      adminId = res.body.data._id;
+      adminId = admin._id;
 
-      expect(res.status).toBe(201);
+      expect(admin.role).toBe(1);
+      expect(admin.email).toBe('o@o.com');
     });
 
     it('should create a regular user', async () => {
@@ -84,33 +85,32 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe('Users endpoints', () =>{
-
-    it('should return a list of users', async () =>{
+  describe.only('Users endpoints', () => {
+    it('should return a list of users', async () => {
       const res = await request(app)
         .get('/api/users')
         .set('Authorization', adminToken);
 
       expect(res.status).toBe(200);
-      expect(res.body.data).toHaveLength(2)
+      expect(res.body.data).toHaveLength(2);
     });
 
-    it('should return 403 trying to edit other user (not admin)', async () =>{
+    it('should return 403 trying to edit other user (not admin)', async () => {
       const res = await request(app)
-        .patch('/api/users/' + adminId)
+        .put('/api/users/' + adminId)
         .send({
-          nickname : 'newNick'
+          nickname: 'newNick',
         })
         .set('Authorization', userToken);
 
       expect(res.status).toBe(403);
     });
 
-    it('should grant successfully a user', async () =>{
+    it('should grant successfully a user', async () => {
       const res = await request(app)
-        .post('/api/users/' + userId + '/admin')
+        .patch('/api/users/' + userId + '/admin')
         .send({
-          admin : true
+          admin: true,
         })
         .set('Authorization', adminToken);
 
@@ -118,11 +118,11 @@ describe('Endpoint E2E integration tests', () => {
       expect(res.body.data.role).toBe(1);
     });
 
-    it('should revoke successfully a user', async () =>{
+    it('should revoke successfully a user', async () => {
       const res = await request(app)
-        .post('/api/users/' + userId + '/admin')
+        .patch('/api/users/' + userId + '/admin')
         .send({
-          admin : false
+          admin: false,
         })
         .set('Authorization', adminToken);
 
@@ -130,11 +130,11 @@ describe('Endpoint E2E integration tests', () => {
       expect(res.body.data.role).toBe(0);
     });
 
-    it('should edit other user (admin)', async () =>{
+    it('should edit other user (admin)', async () => {
       const res = await request(app)
-        .patch('/api/users/' + userId)
+        .put('/api/users/' + userId)
         .send({
-          nickname : 'newNick'
+          nickname: 'newNick',
         })
         .set('Authorization', adminToken);
 
@@ -142,7 +142,7 @@ describe('Endpoint E2E integration tests', () => {
       expect(res.body.data.nickname).toBe('newNick');
     });
 
-    it('should delete other user (admin)', async () =>{
+    it('should delete other user (admin)', async () => {
       const resCreate = await request(app).post('/api/auth/register').send({
         nickname: 'otro',
         email: 'otro@otro.com',
@@ -159,7 +159,7 @@ describe('Endpoint E2E integration tests', () => {
       expect(res.status).toBe(200);
     });
 
-    it('should throw 403 trying to delete other user (no admin)', async () =>{
+    it('should throw 403 trying to delete other user (no admin)', async () => {
       const resCreate = await request(app).post('/api/auth/register').send({
         nickname: 'otro',
         email: 'otro@otro.com',
@@ -175,10 +175,9 @@ describe('Endpoint E2E integration tests', () => {
 
       expect(res.status).toBe(403);
     });
-
   });
 
-  describe('Techs endpoints', () => {
+  describe.only('Techs endpoints', () => {
     let techId;
 
     afterEach(async () => {
@@ -192,8 +191,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
       const techsCount = await Technology.countDocuments();
 
@@ -208,8 +206,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
       const techs = await request(app).get('/api/techs');
 
@@ -224,17 +221,15 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
 
       techId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/techs')
+        .put(`/api/techs/${techId}`)
         .set('Authorization', adminToken)
         .send({
-          _id: techId,
           name: 'Apollo Server',
         });
 
@@ -257,8 +252,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
 
       techId = resCreate.body.data._id;
@@ -274,8 +268,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
       techId = resCreate.body.data._id;
 
@@ -293,8 +286,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'GraphQL',
           type: 'backend',
-          icon:
-            'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+          icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
         });
 
       techId = resCreate.body.data._id;
@@ -303,11 +295,11 @@ describe('Endpoint E2E integration tests', () => {
         .delete('/api/techs/' + techId)
         .set('Authorization', adminToken);
 
-      expect(resDelete.status).toBe(200);
+      expect(resDelete.status).toBe(204);
     });
   });
 
-  describe('Profile endpoints', () => {
+  describe.only('Profile endpoints', () => {
     let techId;
     let techName;
 
@@ -315,8 +307,7 @@ describe('Endpoint E2E integration tests', () => {
       const tech = await Technology.create({
         name: 'GraphQL',
         type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
       });
       techId = tech._id;
       techName = tech.name;
@@ -337,8 +328,7 @@ describe('Endpoint E2E integration tests', () => {
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
           about: {
-            text:
-              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            text: 'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
             skills: [{ tech: techId, percentage: 60 }],
           },
           version: 1,
@@ -357,11 +347,17 @@ describe('Endpoint E2E integration tests', () => {
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
           about: {
-            text:
-              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            text: 'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
             skills: [{ tech: techId, percentage: 60 }],
           },
           version: 1,
+        });
+      const resUpdate = await request(app)
+        .put('/api/profile/' + resCreate.body.data._id)
+        .set('Authorization', userToken)
+        .send({
+          intro: 'bla bla bla ...',
+          version: 2, // TODO: do incremental version in back not in front!
         });
       const res = await request(app)
         .get('/api/profile')
@@ -372,6 +368,7 @@ describe('Endpoint E2E integration tests', () => {
         'name',
         techName
       );
+      expect(res.body.data.version).toBe(2);
     });
 
     it('should update a profile', async () => {
@@ -382,8 +379,7 @@ describe('Endpoint E2E integration tests', () => {
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
           about: {
-            text:
-              'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
+            text: 'En mi ciclo hemos trabajado bastante PHP sobretodo Laravel y JavaScript . Yo por mi cuenta me he puesto a aprender más tecnologías para poder ampliar mis posibilidades y este es mi stack tecnológico ',
             skills: [{ tech: techId, percentage: 60 }],
           },
           version: 1,
@@ -392,10 +388,9 @@ describe('Endpoint E2E integration tests', () => {
       let profileId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/profile')
+        .put('/api/profile/' + profileId)
         .set('Authorization', userToken)
         .send({
-          _id: profileId,
           intro:
             'HTML5, CSS3, JavaScript, Angular, (React y Vue algo más basico pero me defiendo) , PHP, Laravel , MySQL, MongoDB, NodeJS, Express y GraphQL tanto la parte backend (ApolloServer) y la parte frontend (ApolloClient - ApolloAngular)',
           about: {
@@ -410,7 +405,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe('Courses endpoints', () => {
+  describe.only('Courses endpoints', () => {
     let techId;
     let courseId;
 
@@ -418,8 +413,7 @@ describe('Endpoint E2E integration tests', () => {
       const tech = await Technology.create({
         name: 'GraphQL',
         type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
       });
       techId = tech._id;
     });
@@ -439,8 +433,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
-          url:
-            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          url: 'https://www.udemy.com/course/ultimate-react-native-with-firebase',
           language: 'Inglés',
           duration: 51,
           techs: [techId],
@@ -461,8 +454,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
-          url:
-            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          url: 'https://www.udemy.com/course/ultimate-react-native-with-firebase',
           language: 'Inglés',
           duration: 51,
           techs: [techId],
@@ -483,8 +475,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
-          url:
-            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          url: 'https://www.udemy.com/course/ultimate-react-native-with-firebase',
           language: 'Inglés',
           duration: 51,
           techs: [techId],
@@ -494,10 +485,9 @@ describe('Endpoint E2E integration tests', () => {
       courseId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/courses')
+        .put('/api/courses/' + courseId)
         .set('Authorization', adminToken)
         .send({
-          _id: courseId,
           platform: 'OpenWebinars',
         });
 
@@ -520,8 +510,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
-          url:
-            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          url: 'https://www.udemy.com/course/ultimate-react-native-with-firebase',
           language: 'Inglés',
           duration: 51,
           techs: [techId],
@@ -544,8 +533,7 @@ describe('Endpoint E2E integration tests', () => {
         .send({
           name: 'Crypto App with React Native',
           platform: 'Udemy',
-          url:
-            'https://www.udemy.com/course/ultimate-react-native-with-firebase',
+          url: 'https://www.udemy.com/course/ultimate-react-native-with-firebase',
           language: 'Inglés',
           duration: 51,
           techs: [techId],
@@ -570,8 +558,7 @@ describe('Endpoint E2E integration tests', () => {
       const tech = await Technology.create({
         name: 'GraphQL',
         type: 'backend',
-        icon:
-          'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
+        icon: 'https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/034/square_256/graphqllogo.png',
       });
       techId = tech._id;
     });
