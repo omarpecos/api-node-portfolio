@@ -16,20 +16,20 @@ userRouter.get(
 );
 
 userRouter.patch(
-  '/:id/admin',
+  '/:userUuid/admin',
   [AuthenticationMiddleware, AuthorizationMiddleware, middleware.loadUser],
   UserController.makeAdmin
 );
 
 userRouter.delete(
-  '/:id',
+  '/:userUuid',
   [AuthenticationMiddleware, AuthorizationMiddleware, middleware.loadUser],
   UserController.deleteUser
 );
 
 userRouter.put(
-  '/:id',
-  [AuthenticationMiddleware, middleware.loadUser],
+  '/:userUuid',
+  [AuthenticationMiddleware, middleware.loadUser, middleware.canEditUser],
   UserController.updateUser
 );
 

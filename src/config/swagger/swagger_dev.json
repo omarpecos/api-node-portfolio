@@ -848,7 +848,7 @@
         }
       }
     },
-    "/users/{id}/admin": {
+    "/users/{userUuid}/admin": {
       "patch": {
         "tags": ["User"],
         "summary": "Grant or revoke admin privileges to user ----- ONLY ADMIN",
@@ -860,7 +860,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "userUuid",
             "in": "path",
             "type": "string",
             "description": "User Id",
@@ -914,7 +914,7 @@
         }
       }
     },
-    "/users/{id}": {
+    "/users/{userUuid}": {
       "put": {
         "tags": ["User"],
         "summary": "Edit user profile only if it is your profile ----- ONLY AUTH USERS",
@@ -927,7 +927,7 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
+            "name": "userUuid",
             "in": "path",
             "type": "string",
             "description": "User Id",
@@ -990,7 +990,7 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
+            "name": "userUuid",
             "in": "path",
             "type": "string",
             "description": "User Id",
