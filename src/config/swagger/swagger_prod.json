@@ -528,8 +528,8 @@
       },
       "post": {
         "tags": ["Course"],
-        "summary": "Create new course if it does not exist or update it ----- ONLY AUTH USERS ",
-        "description": "If you want to create a new course you must not pass _id property in body and for update existing course you must pass _id : ID in the body",
+        "summary": "Create new course ----- ONLY AUTH USERS ",
+        "description": "",
         "security": {
           "basicAuth": {
             "type": "basic"
@@ -578,7 +578,64 @@
       }
     },
 
-    "/courses/{id}": {
+    "/courses/{courseUuid}": {
+      "put": {
+        "tags": ["Course"],
+        "summary": "Update course  ----- ONLY AUTH USERS ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "courseUuid",
+            "in": "path",
+            "type": "string",
+            "description": "Course Id",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/Course"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Course"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      },
       "delete": {
         "tags": ["Course"],
         "summary": "Delete course ----- ONLY AUTH USERS ",

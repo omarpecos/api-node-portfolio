@@ -4,11 +4,12 @@ const getAllCourses = (Course) => (userId) => {
     .populate('techs', 'name type icon _id');
 };
 
-const createOrUpdateCourse = (Course) => (newCourse) => {
-  return Course.findOneAndUpdate({ _id: newCourse._id }, newCourse, {
-    upsert: true,
+const createCourse = (Course) => (userUuid, newCourse) =>
+  Course.create({ ...newCourse, userId: userUuid });
+
+const updateCourse = (Course) => (courseUuid, data) => {
+  return Course.findOneAndUpdate({ _id: courseUuid }, data, {
     new: true,
-    setDefaultsOnInsert: true,
   });
 };
 
@@ -23,7 +24,8 @@ const getOneCourse = (Course) => (id) => {
 module.exports = (Course) => {
   return {
     getAllCourses: getAllCourses(Course),
-    createOrUpdateCourse: createOrUpdateCourse(Course),
+    createCourse: createCourse(Course),
+    updateCourse: updateCourse(Course),
     deleteCourse: deleteCourse(Course),
     getOneCourse: getOneCourse(Course),
   };

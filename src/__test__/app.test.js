@@ -405,7 +405,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe('Courses endpoints', () => {
+  describe.only('Courses endpoints', () => {
     let techId;
     let courseId;
 
@@ -485,10 +485,9 @@ describe('Endpoint E2E integration tests', () => {
       courseId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/courses')
+        .put('/api/courses/' + courseId)
         .set('Authorization', adminToken)
         .send({
-          _id: courseId,
           platform: 'OpenWebinars',
         });
 
