@@ -1,22 +1,5 @@
-const { hashSync, compareSync } = require('bcrypt');
-const JWT = require('jsonwebtoken');
-const { JWT_SECRET, MASTER_PASS } = require('../config');
+const { MASTER_PASS } = require('../config');
 const { User } = require('../models');
-
-const hashPassword = (pass) => {
-  return hashSync(pass, 10);
-};
-
-const comparePasswords = (pass, hash) => {
-  return compareSync(pass, hash);
-};
-
-const createToken = (data) => {
-  let token = JWT.sign(data, JWT_SECRET, { expiresIn: '4h' });
-  return token;
-};
-
-const verifyToken = (token) => JWT.verify(token, JWT_SECRET);
 
 const createDefaultUsers = async () => {
   const usersCount = await User.countDocuments();
@@ -42,9 +25,5 @@ const createDefaultUsers = async () => {
 };
 
 module.exports = {
-  hashPassword,
-  comparePasswords,
-  createToken,
-  verifyToken,
   createDefaultUsers,
 };
