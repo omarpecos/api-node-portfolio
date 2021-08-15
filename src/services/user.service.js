@@ -10,6 +10,14 @@ const getOneUserById = (User) => (id) => {
   return User.findById(id);
 };
 
+const getUserByResetTokenNotExpired = (User) => (token) => {
+  const now = new Date();
+  return User.findOne({
+    resetPasswordToken: token,
+    resetPasswordTokenExpiration: { $gt: now },
+  });
+};
+
 const getOneUserByIdAndDelete = (User) => (id) => {
   return User.findByIdAndDelete(id);
 };
@@ -29,6 +37,7 @@ module.exports = (User) => {
     getAllUsers: getAllUsers(User),
     getUserByEmail: getUserByEmail(User),
     getOneUserById: getOneUserById(User),
+    getUserByResetTokenNotExpired: getUserByResetTokenNotExpired(User),
     getOneUserByIdAndDelete: getOneUserByIdAndDelete(User),
     editOneUser: editOneUser(User),
   };

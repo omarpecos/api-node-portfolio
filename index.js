@@ -9,6 +9,7 @@ moongose
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
   })
   .then(
     () => {

@@ -10,7 +10,10 @@ const comparePasswords = (pass, hash) => {
 };
 
 const createCryptoToken = (data, algorithm = 'sha256') =>
-  crypto.createHash(algorithm).update(data).digest('hex');
+  crypto
+    .createHash(algorithm)
+    .update(`${new Date().toISOString()}${data}`)
+    .digest('hex');
 
 module.exports = {
   hashPassword,

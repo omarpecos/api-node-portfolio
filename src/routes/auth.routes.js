@@ -9,4 +9,8 @@ authRouter.post('/login', AuthController.login);
 
 authRouter.get('/isAuthenticated', AuthController.isAuthenticated);
 
+authRouter.post('/forgot-password', AuthController.forgotPassword);
+
+authRouter.put('/reset-password', AuthController.resetPassword);
+
 module.exports = authRouter;
