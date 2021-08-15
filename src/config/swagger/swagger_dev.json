@@ -48,6 +48,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/SignUpBody"
             }
@@ -88,6 +89,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/SignInBody"
             }
@@ -322,6 +324,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/TechnologyBody"
             }
@@ -387,6 +390,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/TechnologyBody"
             }
@@ -537,6 +541,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Profile"
             }
@@ -595,6 +600,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Profile"
             }
@@ -694,6 +700,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Course"
             }
@@ -754,6 +761,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Course"
             }
@@ -897,8 +905,8 @@
       },
       "post": {
         "tags": ["Project"],
-        "summary": "Create new project if it does not exist or update it ----- ONLY AUTH USERS ",
-        "description": "If you want to create a new project you must not pass _id property in body and for update existing project you must pass _id : ID in the body",
+        "summary": "Create new project ----- ONLY AUTH USERS ",
+        "description": "",
         "security": {
           "basicAuth": {
             "type": "basic"
@@ -909,6 +917,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Project"
             }
@@ -947,7 +956,65 @@
       }
     },
 
-    "/projects/{id}": {
+    "/projects/{projectUuid}": {
+      "put": {
+        "tags": ["Project"],
+        "summary": "Update project ----- ONLY AUTH USERS ",
+        "description": "",
+        "security": {
+          "basicAuth": {
+            "type": "basic"
+          }
+        },
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "projectUuid",
+            "in": "path",
+            "type": "string",
+            "description": "Project Id",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Authorization token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "data": {
+                  "$ref": "#/definitions/Project"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathenticated",
+            "schema": {
+              "$ref": "#/definitions/ApiErrorResponse"
+            }
+          }
+        }
+      },
       "delete": {
         "tags": ["Project"],
         "summary": "Delete project ----- ONLY AUTH USERS ",
@@ -960,7 +1027,7 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
+            "name": "projectUuid",
             "in": "path",
             "type": "string",
             "description": "Project Id",
@@ -1079,12 +1146,12 @@
             "required": true
           },
           {
-            "name": "body",
             "in": "body",
+            "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MakeAdminBody"
-            },
-            "required": true
+            }
           },
           {
             "in": "header",
@@ -1148,6 +1215,7 @@
           {
             "in": "body",
             "name": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/SignUpBody"
             }

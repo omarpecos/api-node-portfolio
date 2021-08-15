@@ -27,13 +27,13 @@ describe('Endpoint E2E integration tests', () => {
     await mongoose.connection.close();
   });
 
-  it.only('should return a 404 if the route is not defined', async () => {
+  it('should return a 404 if the route is not defined', async () => {
     const res = await request(app).get('/api/v1/false_route');
 
     expect(res.status).toBe(404);
   });
 
-  describe.only('Auth endpoints', () => {
+  describe('Auth endpoints', () => {
     it('should create a admin user', async () => {
       const hashedPass = hashPassword('omar');
       const admin = await User.create({
@@ -85,7 +85,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe.only('Users endpoints', () => {
+  describe('Users endpoints', () => {
     it('should return a list of users', async () => {
       const res = await request(app)
         .get('/api/users')
@@ -177,7 +177,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe.only('Techs endpoints', () => {
+  describe('Techs endpoints', () => {
     let techId;
 
     afterEach(async () => {
@@ -299,7 +299,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe.only('Profile endpoints', () => {
+  describe('Profile endpoints', () => {
     let techId;
     let techName;
 
@@ -405,7 +405,7 @@ describe('Endpoint E2E integration tests', () => {
     });
   });
 
-  describe.only('Courses endpoints', () => {
+  describe('Courses endpoints', () => {
     let techId;
     let courseId;
 
@@ -639,10 +639,9 @@ describe('Endpoint E2E integration tests', () => {
       projectId = resCreate.body.data._id;
 
       const resUpdate = await request(app)
-        .post('/api/projects')
+        .put('/api/projects/' + projectId)
         .set('Authorization', userToken)
         .send({
-          _id: projectId,
           description: 'new description',
         });
 

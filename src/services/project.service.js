@@ -9,11 +9,12 @@ const getAllProjects = (Project) => (userId) => {
     .populate('techs', 'name type icon  _id');
 };
 
-const createOrUpdateProject = (Project) => (newProject) => {
-  return Project.findOneAndUpdate({ _id: newProject._id }, newProject, {
-    upsert: true,
+const createProject = (Project) => (userUuid, newProject) =>
+  Project.create({ ...newProject, userId: userUuid });
+
+const updateProject = (Project) => (projectUuid, data) => {
+  return Project.findOneAndUpdate({ _id: projectUuid }, data, {
     new: true,
-    setDefaultsOnInsert: true,
   });
 };
 
@@ -29,7 +30,8 @@ module.exports = (Project) => {
   return {
     getAllProjects: getAllProjects(Project),
     getOneProject: getOneProject(Project),
-    createOrUpdateProject: createOrUpdateProject(Project),
+    createProject: createProject(Project),
+    updateProject: updateProject(Project),
     deleteProject: deleteProject(Project),
   };
 };
