@@ -3,7 +3,7 @@ const request = require('supertest');
 const { MONGO_URI, MONGO_DB_NAME } = require('../config');
 const { Technology, Profile, Course, Project, User } = require('../models');
 const app = require('../app');
-const { hashPassword } = require('../utils');
+const { hashPassword } = require('../utils/encryption');
 
 const mongoURITest = MONGO_URI.replace(MONGO_DB_NAME, `${MONGO_DB_NAME}_test`);
 

@@ -1,5 +1,5 @@
 const { UserService } = require('../services');
-const { hashPassword } = require('../utils');
+const { hashPassword } = require('../utils/encryption');
 
 const getAllUsers = async (req, res) => {
   const users = await UserService.getAllUsers();

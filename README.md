@@ -35,9 +35,11 @@ The original idea is to use this API data and then build a static site using [Gr
 ```gherkin=
 const userSchema = new Schema({
   nickname: String,
-  email: String,
+  email: { type: String, unique: true },
   password: String,
   role: { type: Number, default: 0 },
+  resetPasswordToken: { type: String },
+  resetPasswordTokenExpiration: { type: Date },
 });
 ```
 
@@ -120,13 +122,19 @@ For a more extense Documentation and for trying the endpoints
 
 > POST - **URL**/api/login
 
+> GET - **URL**/api/isAuthenticated
+
+> POST - **URL**/api/forgot-password
+
+> PUT - **URL**/api/reset-password
+
 #### Users
 
 > GET - **URL**/api/users - ONLY ADMIN
 
-> POST - **URL**/api/users/:id/admin (Make admin) - ONLY ADMIN
+> PATCH - **URL**/api/users/:id/admin (Make admin) - ONLY ADMIN
 
-> PATCH - **URL**/api/users/:id - ONLY AUTH USERS
+> PUT - **URL**/api/users/:id - ONLY AUTH USERS
 
 > DELETE - **URL**/api/users/:id - ONLY ADMIN
 
@@ -136,6 +144,8 @@ For a more extense Documentation and for trying the endpoints
 
 > POST - **URL**/api/techs - ONLY ADMIN
 
+> PUT - **URL**/api/techs/:id - ONLY ADMIN
+
 > DELETE - **URL**/api/techs/:id - ONLY ADMIN
 
 #### Profile
@@ -144,11 +154,15 @@ For a more extense Documentation and for trying the endpoints
 
 > POST - **URL**/api/profile - ONLY AUTH USERS
 
+> PUT - **URL**/api/profile/:id - ONLY AUTH USERS
+
 #### Courses
 
 > GET - **URL**/api/courses - ONLY AUTH USERS
 
 > POST - **URL**/api/courses - ONLY AUTH USERS
+
+> PUT - **URL**/api/courses/:id - ONLY AUTH USERS
 
 > DELETE - **URL**/api/courses/:id - ONLY AUTH USERS
 
@@ -157,6 +171,8 @@ For a more extense Documentation and for trying the endpoints
 > GET - **URL**/api/projects - ONLY AUTH USERS
 
 > POST - **URL**/api/projects - ONLY AUTH USERS
+
+> PUT - **URL**/api/projects/:id - ONLY AUTH USERS
 
 > DELETE - **URL**/api/projects/:id - ONLY AUTH USERS
 

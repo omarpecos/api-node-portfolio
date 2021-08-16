@@ -2,13 +2,14 @@ const { PORT, MONGO_URI } = require('./src/config');
 
 const moongose = require('mongoose');
 const app = require('./src/app');
-const { createDefaultUsers } = require('./src/utils');
+const { createDefaultUsers } = require('./src/utils/helpers');
 
 moongose
   .connect(MONGO_URI, {
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
   })
   .then(
     () => {
