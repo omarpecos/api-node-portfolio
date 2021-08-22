@@ -7,7 +7,7 @@ const { hashPassword } = require('../utils/encryption');
 
 const mongoURITest = MONGO_URI.replace(MONGO_DB_NAME, `${MONGO_DB_NAME}_test`);
 
-describe.skip('Endpoint E2E integration tests', () => {
+describe('Endpoint E2E integration tests', () => {
   let adminId;
   let userId;
   let userToken;
