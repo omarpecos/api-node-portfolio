@@ -24,6 +24,22 @@ const createDefaultUsers = async () => {
   }
 };
 
+const createPaginatedData = (data, count, query) => {
+  const totalPages =
+    Math.floor(count / query.pagination.perPage) +
+    (count % query.pagination.perPage > 0 ? 1 : 0);
+
+  return {
+    previous: query.pagination.page > 1,
+    next: query.pagination.page < totalPages,
+    page: query.pagination.page,
+    perPage: query.pagination.perPage,
+    totalPages: totalPages ? totalPages : 1, // no 0 totalPages
+    rows: data,
+  };
+};
+
 module.exports = {
   createDefaultUsers,
+  createPaginatedData,
 };

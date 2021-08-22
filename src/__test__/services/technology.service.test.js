@@ -35,7 +35,11 @@ describe.only('TechService tests', () => {
        */
 
     const techService = TechService(MockModel);
-    techService.getAllTechs();
+    const query = {
+      sort: { _id: 'DESC' },
+      all: true,
+    };
+    techService.getAllTechs(query);
     const expected = true;
     const actual = MockModel.find.calledOnce;
 

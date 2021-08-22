@@ -1,17 +1,23 @@
 const { Router } = require('express');
+const { PAGINATION_TYPES } = require('../constants');
 const { UserController } = require('../controllers');
 
 const {
   AuthorizationMiddleware,
   AuthenticationMiddleware,
   userMiddleware: middleware,
+  AdvancedResultsMiddleware,
 } = require('../middlewares');
 
 const userRouter = new Router();
 
 userRouter.get(
   '/',
-  [AuthenticationMiddleware, AuthorizationMiddleware],
+  [
+    AuthenticationMiddleware,
+    AuthorizationMiddleware,
+    AdvancedResultsMiddleware(PAGINATION_TYPES.USERS.type),
+  ],
   UserController.getAllUsers
 );
 

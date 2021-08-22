@@ -5,12 +5,8 @@ const userSchema = new Schema({
   email: { type: String, unique: true },
   password: String,
   role: { type: Number, default: 0 },
-  resetPasswordToken: {
-    type: String,
-  },
-  resetPasswordTokenExpiration: {
-    type: Date,
-  },
+  resetPasswordToken: { type: String },
+  resetPasswordTokenExpiration: { type: Date },
 });
 
 userSchema.methods.toJSON = function () {

@@ -1,5 +1,13 @@
-const getAllTechs = (Technology) => () => {
-  return Technology.find({}).sort('type');
+const getAllTechs = (Technology) => (query) => {
+  const q = Technology.find().sort(query.sort);
+  if (!query.all) {
+    return q.skip(query.skip).limit(query.limit);
+  }
+  return q;
+};
+
+const countTechs = (Technology) => () => {
+  return Technology.countDocuments();
 };
 
 const getTechByUuid = (Technology) => (techUuid) =>
@@ -18,6 +26,7 @@ const deleteTech = (Technology) => (techUuid) =>
 module.exports = (Technology) => {
   return {
     getAllTechs: getAllTechs(Technology),
+    countTechs: countTechs(Technology),
     getTechByUuid: getTechByUuid(Technology),
     createTech: createTech(Technology),
     updateTech: updateTech(Technology),

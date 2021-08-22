@@ -6,4 +6,5 @@ module.exports = {
   AuthenticationMiddleware: require('./authentication.middleware'),
   AuthorizationMiddleware: require('./authorization.middleware'),
   ...resources,
+  AdvancedResultsMiddleware: require('./advanced-results.middleware'),
 };

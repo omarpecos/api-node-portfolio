@@ -1,12 +1,19 @@
 const { UserService } = require('../services');
 const { hashPassword } = require('../utils/encryption');
+const { createPaginatedData } = require('../utils/helpers');
 
 const getAllUsers = async (req, res) => {
-  const users = await UserService.getAllUsers();
+  const { query } = res.locals;
+
+  const users = await UserService.getAllUsers(query);
+  const count = await UserService.countUsers();
+
+  const data = query.all ? users : createPaginatedData(users, count, query);
 
   res.json({
     status: 'success',
-    data: users,
+    paginated: !query.all ? true : undefined,
+    data,
   });
 };
 

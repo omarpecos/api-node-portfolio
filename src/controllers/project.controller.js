@@ -1,15 +1,22 @@
 const { ProjectService } = require('../services');
+const { createPaginatedData } = require('../utils/helpers');
 
 const getAllProjects = async (req, res) => {
   const {
     user: { _id: userId },
   } = req;
+  const { query } = res.locals;
 
-  const projects = await ProjectService.getAllProjects(userId);
+  const projects = await ProjectService.getAllProjects(userId, query);
+  const count = await ProjectService.countProjects();
+
+  const data = query.all
+    ? projects
+    : createPaginatedData(projects, count, query);
 
   res.status(200).json({
     status: 'success',
-    data: projects,
+    data,
   });
 };
 
