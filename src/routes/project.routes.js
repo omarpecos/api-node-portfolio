@@ -3,14 +3,17 @@ const { Router } = require('express');
 const {
   AuthenticationMiddleware,
   projectMiddleware: middleware,
+  AdvancedResultsMiddleware,
 } = require('../middlewares');
 const { ProjectController } = require('../controllers');
+const { PAGINATION_TYPES } = require('../constants');
 
 const projectRouter = new Router();
 
 projectRouter.get(
   '/',
   AuthenticationMiddleware,
+  AdvancedResultsMiddleware(PAGINATION_TYPES.PROJECTS.type),
   ProjectController.getAllProjects
 );
 

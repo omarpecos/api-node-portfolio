@@ -1,11 +1,18 @@
 const { TechService } = require('../services');
+const { createPaginatedData } = require('../utils/helpers');
 
 const listTechs = async (req, res) => {
-  const techs = await TechService.getAllTechs();
+  const { query } = res.locals;
+
+  const techs = await TechService.getAllTechs(query);
+  const count = await TechService.countTechs();
+
+  const data = query.all ? techs : createPaginatedData(techs, count, query);
 
   res.status(200).json({
     status: 'success',
-    data: techs,
+    paginated: !query.all ? true : undefined,
+    data,
   });
 };
 

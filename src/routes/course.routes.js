@@ -1,14 +1,21 @@
 const { Router } = require('express');
+const { PAGINATION_TYPES } = require('../constants');
 
 const { CourseController } = require('../controllers');
 const {
   AuthenticationMiddleware,
   courseMiddleware: middleware,
+  AdvancedResultsMiddleware,
 } = require('../middlewares');
 
 const courseRouter = new Router();
 
-courseRouter.get('/', AuthenticationMiddleware, CourseController.getAllCourses);
+courseRouter.get(
+  '/',
+  AuthenticationMiddleware,
+  AdvancedResultsMiddleware(PAGINATION_TYPES.COURSES.type),
+  CourseController.getAllCourses
+);
 
 courseRouter.post('/', AuthenticationMiddleware, CourseController.createCourse);
 

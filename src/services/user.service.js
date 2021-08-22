@@ -2,8 +2,16 @@ const getUserByEmail = (User) => (email) => {
   return User.findOne({ email: email });
 };
 
-const getAllUsers = (User) => () => {
-  return User.find({}).sort('-_id');
+const getAllUsers = (User) => (query) => {
+  const q = User.find().sort(query.sort);
+  if (!query.all) {
+    return q.skip(query.skip).limit(query.limit);
+  }
+  return q;
+};
+
+const countUsers = (User) => () => {
+  return User.countDocuments();
 };
 
 const getOneUserById = (User) => (id) => {
@@ -35,6 +43,7 @@ const editOneUser = (User) => (id, body) => {
 module.exports = (User) => {
   return {
     getAllUsers: getAllUsers(User),
+    countUsers: countUsers(User),
     getUserByEmail: getUserByEmail(User),
     getOneUserById: getOneUserById(User),
     getUserByResetTokenNotExpired: getUserByResetTokenNotExpired(User),

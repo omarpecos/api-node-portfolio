@@ -1,15 +1,20 @@
 const { CourseService } = require('../services');
+const { createPaginatedData } = require('../utils/helpers');
 
 const getAllCourses = async (req, res) => {
   const {
     user: { _id: userId },
   } = req;
+  const { query } = res.locals;
 
-  const courses = await CourseService.getAllCourses(userId);
+  const courses = await CourseService.getAllCourses(userId, query);
+  const count = await CourseService.countCourses();
+
+  const data = query.all ? courses : createPaginatedData(courses, count, query);
 
   res.status(200).json({
     status: 'success',
-    data: courses,
+    data,
   });
 };
 
