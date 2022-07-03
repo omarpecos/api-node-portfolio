@@ -1,0 +1,11 @@
+version: '3'
+services:
+  api:
+    image: omarpecos/api-portfolio
+    restart: always
+    ports:
+      - '${PORT}:${PORT}'
+    environment:
+      NODE_ENV: production
+    env_file:
+      - .env
