@@ -1,19 +1,24 @@
-const getAllProjects = (Project) => (userId) => {
-  return Project.find({
+const getAllProjects = (Project) => (userId, query) => {
+  const q = Project.find({
     userId,
   })
-    .sort([
-      ['type', 'asc'],
-      ['_id', 'desc'],
-    ])
+    .sort(query.sort)
     .populate('techs', 'name type icon  _id');
+
+  if (!query.all) {
+    return q.skip(query.skip).limit(query.limit);
+  }
+  return q;
 };
 
-const createOrUpdateProject = (Project) => (newProject) => {
-  return Project.findOneAndUpdate({ _id: newProject._id }, newProject, {
-    upsert: true,
+const countProjects = (Project) => () => Project.countDocuments();
+
+const createProject = (Project) => (userUuid, newProject) =>
+  Project.create({ ...newProject, userId: userUuid });
+
+const updateProject = (Project) => (projectUuid, data) => {
+  return Project.findOneAndUpdate({ _id: projectUuid }, data, {
     new: true,
-    setDefaultsOnInsert: true,
   });
 };
 
@@ -28,8 +33,10 @@ const getOneProject = (Project) => (id) => {
 module.exports = (Project) => {
   return {
     getAllProjects: getAllProjects(Project),
+    countProjects: countProjects(Project),
     getOneProject: getOneProject(Project),
-    createOrUpdateProject: createOrUpdateProject(Project),
+    createProject: createProject(Project),
+    updateProject: updateProject(Project),
     deleteProject: deleteProject(Project),
   };
 };

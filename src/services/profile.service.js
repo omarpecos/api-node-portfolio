@@ -13,11 +13,14 @@ const getOneProfileById = (Profile) => (id) => {
   });
 };
 
-const createOrUpdateProfile = (Profile) => (newProfile) => {
-  return Profile.findOneAndUpdate({ _id: newProfile._id }, newProfile, {
-    upsert: true,
+const createProfile = (Profile) => (userUuid, newProfile) => {
+  return Profile.create({ ...newProfile, userId: userUuid });
+};
+
+const updateProfile = (Profile) => (profileUuid, profile) => {
+  // TODO - must update new version ++ here not in front!
+  return Profile.findOneAndUpdate({ _id: profileUuid }, profile, {
     new: true,
-    setDefaultsOnInsert: true,
   });
 };
 
@@ -25,6 +28,7 @@ module.exports = (Profile) => {
   return {
     getProfile: getProfile(Profile),
     getOneProfileById: getOneProfileById(Profile),
-    createOrUpdateProfile: createOrUpdateProfile(Profile),
+    createProfile: createProfile(Profile),
+    updateProfile: updateProfile(Profile),
   };
 };

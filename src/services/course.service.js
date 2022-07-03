@@ -1,14 +1,23 @@
-const getAllCourses = (Course) => (userId) => {
-  return Course.find({ userId })
-    .sort('-_id')
+const getAllCourses = (Course) => (userId, query) => {
+  const q = Course.find({ userId })
+    .sort(query.sort)
     .populate('techs', 'name type icon _id');
+  if (!query.all) {
+    return q.skip(query.skip).limit(query.limit);
+  }
+  return q;
 };
 
-const createOrUpdateCourse = (Course) => (newCourse) => {
-  return Course.findOneAndUpdate({ _id: newCourse._id }, newCourse, {
-    upsert: true,
+const countCourses = (Course) => () => {
+  return Course.countDocuments();
+};
+
+const createCourse = (Course) => (userUuid, newCourse) =>
+  Course.create({ ...newCourse, userId: userUuid });
+
+const updateCourse = (Course) => (courseUuid, data) => {
+  return Course.findOneAndUpdate({ _id: courseUuid }, data, {
     new: true,
-    setDefaultsOnInsert: true,
   });
 };
 
@@ -23,7 +32,9 @@ const getOneCourse = (Course) => (id) => {
 module.exports = (Course) => {
   return {
     getAllCourses: getAllCourses(Course),
-    createOrUpdateCourse: createOrUpdateCourse(Course),
+    countCourses: countCourses(Course),
+    createCourse: createCourse(Course),
+    updateCourse: updateCourse(Course),
     deleteCourse: deleteCourse(Course),
     getOneCourse: getOneCourse(Course),
   };
